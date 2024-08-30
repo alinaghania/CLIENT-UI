@@ -8,6 +8,7 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_aws import ChatBedrock
 from pathlib import Path
 from langchain_core.messages import AIMessage, HumanMessage
+import pandas as pd
 
 # Configuration de la page Streamlit
 st.set_page_config(page_title="BOB")
@@ -16,6 +17,9 @@ st.title("B.O.B")
 # Session state pour l'historique des chats
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = InMemoryChatMessageHistory()
+    
+if "qa_data" not in st.session_state:
+    st.session_state.qa_data = []
 
 # Fonction pour mesurer le temps d'exécution pendant le streaming
 def measure_time(func):
@@ -83,44 +87,62 @@ def run_chain(input_text, context):
 # Charger le contexte du document
 context = Path("parsed_data/peugeot_data.txt").read_text()
 
+tab1, tab2 = st.tabs(["Chat", "Data View"])
+
+with tab1:
+
 # Afficher l'historique des messages
-for message in st.session_state.chat_history.messages:
-    if isinstance(message, AIMessage):
-        with st.chat_message("AI"):
-            st.write(message.content)
-    elif isinstance(message, HumanMessage):
+    for message in st.session_state.chat_history.messages:
+        if isinstance(message, AIMessage):
+            with st.chat_message("AI"):
+                st.write(message.content)
+        elif isinstance(message, HumanMessage):
+            with st.chat_message("Human"):
+                st.write(message.content)
+
+    # Entrée utilisateur
+    user_input = st.chat_input("Posez votre question ici...")
+    if user_input:
+        # Ajouter le message utilisateur à l'historique
+        add_message_to_history(HumanMessage(content=user_input))
+        
+        # Afficher le message utilisateur
         with st.chat_message("Human"):
-            st.write(message.content)
+            st.markdown(user_input)
+        
+        # Obtenir la réponse de l'IA et mesurer le temps
+        with st.chat_message("AI"):
+            response = run_chain(user_input, context)
+            st.write(response)
+        
+        # Ajouter la réponse de l'IA à l'historique
+        add_message_to_history(AIMessage(content=response))
 
-# Entrée utilisateur
-user_input = st.chat_input("Posez votre question ici...")
-if user_input:
-    # Ajouter le message utilisateur à l'historique
-    add_message_to_history(HumanMessage(content=user_input))
-    
-    # Afficher le message utilisateur
-    with st.chat_message("Human"):
-        st.markdown(user_input)
-    
-    # Obtenir la réponse de l'IA et mesurer le temps
-    with st.chat_message("AI"):
-        response = run_chain(user_input, context)
-        st.write(response)
-    
-    # Ajouter la réponse de l'IA à l'historique
-    add_message_to_history(AIMessage(content=response))
+    # Exemples de questions
+    st.markdown('<div class="QUESTIONS EXAMPLES">', unsafe_allow_html=True)
+    questions = [
+        "What's the price to charge?",
+        "Hello, I want to know what are the best applications?",
+        "What is the customer satisfaction rate among French users who switched to electric vehicles?",
+        "Can you provide a brief history of Peugeot's electric vehicles?",
+        "What are the main factors influencing the autonomy of an electric vehicle?",
+        "Tell me what's the price to charge my e-208, and then the time to recharge on a born."
+    ]
 
-# Exemples de questions
-st.markdown('<div class="QUESTIONS EXAMPLES">', unsafe_allow_html=True)
-questions = [
-    "What's the price to charge?",
-    "Hello, I want to know what are the best applications?",
-    "What is the customer satisfaction rate among French users who switched to electric vehicles?",
-    "Can you provide a brief history of Peugeot's electric vehicles?",
-    "What are the main factors influencing the autonomy of an electric vehicle?",
-    "Tell me what's the price to charge my e-208, and then the time to recharge on a born."
-]
+    for i, question in enumerate(questions, start=1):
+        with st.expander(f"Question {i}"):
+            st.write(question)
 
-for i, question in enumerate(questions, start=1):
-    with st.expander(f"Question {i}"):
-        st.write(question)
+
+with tab2:
+    # Create a DataFrame from the QA data
+    df = pd.DataFrame(st.session_state.qa_data)
+    
+    # Display the DataFrame
+    st.write("Summary of Questions and Answers:")
+    st.dataframe(df)
+    
+    # Provide a download button to save the DataFrame as a CSV
+    csv = df.to_csv(index=False).encode('utf-8')
+    st.download_button(label="Download data as CSV", data=csv, file_name='qa_data.csv', mime='text/csv')
+

@@ -61,8 +61,7 @@
     ]
     ````
 
-5. 
-pip install langchain-aws
-pip install boto3 requests requests-aws4auth
-
-
+5. Install 
+    ``` pip install langchain-aws
+        pip install boto3 requests requests-aws4auth
+    ```
