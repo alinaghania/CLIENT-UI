@@ -3,3 +3,4 @@ anthropic==0.28.1
 docx2txt #to parse word file 
 voyageai # anthropic model embedding
 langchain-aws
+streamlit

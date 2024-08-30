@@ -63,5 +63,14 @@
 
 5. Install 
     ``` pip install langchain-aws
-        pip install boto3 requests requests-aws4auth
+        pip install boto3 requests requests-aws4auth streamlit
+    ```
+
+
+
+
+6. Run the v0 - chatbot with metrics ( token, time)
+
+    ```
+    streamlit run 2_chatbot_metrics
     ```
