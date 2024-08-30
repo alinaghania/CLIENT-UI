@@ -9,7 +9,7 @@ from langchain_aws import ChatBedrock
 from pathlib import Path
 from langchain_core.messages import AIMessage, HumanMessage
 import pandas as pd
-
+import io
 # Configuration de la page Streamlit
 st.set_page_config(page_title="BOB")
 st.title("B.O.B")
@@ -18,8 +18,9 @@ st.title("B.O.B")
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = InMemoryChatMessageHistory()
     
-if "qa_data" not in st.session_state:
-    st.session_state.qa_data = []
+        # Initialiser la liste des temps de réponse dans la session state
+if "response_times" not in st.session_state:
+    st.session_state.response_times = []
 
 # Fonction pour mesurer le temps d'exécution pendant le streaming
 def measure_time(func):
@@ -28,7 +29,7 @@ def measure_time(func):
         start_time = datetime.now()
         first_token_time = None
         result = None
-        
+
         def streaming_wrapper():
             nonlocal first_token_time, result
             for token in func(*args, **kwargs):
@@ -41,9 +42,15 @@ def measure_time(func):
             streaming_elapsed = (end_time - first_token_time).total_seconds() if first_token_time else 0
             st.write(f" Total response time: {total_elapsed:.2f} seconds.")
             st.write(f"Streaming time: {streaming_elapsed:.2f} seconds.")
-        
+            
+            # Enregistrer les temps de réponse
+            st.session_state.response_times.append({
+                "first_token_time": (first_token_time - start_time).total_seconds() if first_token_time else None,
+                "total_elapsed": total_elapsed,
+                "streaming_elapsed": streaming_elapsed
+            })
+
         return streaming_wrapper()
-    
     return wrapper_measure_time
 
 # Fonction pour vérifier et ajouter les messages tout en respectant l'alternance
@@ -84,65 +91,98 @@ def run_chain(input_text, context):
     response = chain.stream({"input": input_text, "context": context})
     return response
 
+# Fonction pour sauvegarder les résultats sous forme de CSV
+def save_results_to_csv():
+    data = []
+    for i in range(0, len(st.session_state.chat_history.messages) - 1, 2):
+        question = st.session_state.chat_history.messages[i].content
+        response = st.session_state.chat_history.messages[i + 1].content
+        data.append({
+            "Question": question,
+            "Response": response,
+            "First Token Time (s)": st.session_state.response_times[i//2]["first_token_time"] if i//2 < len(st.session_state.response_times) else "",
+            "Total Response Time (s)": st.session_state.response_times[i//2]["total_elapsed"] if i//2 < len(st.session_state.response_times) else "",
+            "Streaming Time (s)": st.session_state.response_times[i//2]["streaming_elapsed"] if i//2 < len(st.session_state.response_times) else ""
+        })
+    
+    df = pd.DataFrame(data)
+    return df.to_csv(index=False).encode("utf-8")
+
+
+
 # Charger le contexte du document
 context = Path("parsed_data/peugeot_data.txt").read_text()
 
-tab1, tab2 = st.tabs(["Chat", "Data View"])
-
-with tab1:
-
 # Afficher l'historique des messages
-    for message in st.session_state.chat_history.messages:
-        if isinstance(message, AIMessage):
-            with st.chat_message("AI"):
-                st.write(message.content)
-        elif isinstance(message, HumanMessage):
-            with st.chat_message("Human"):
-                st.write(message.content)
-
-    # Entrée utilisateur
-    user_input = st.chat_input("Posez votre question ici...")
-    if user_input:
-        # Ajouter le message utilisateur à l'historique
-        add_message_to_history(HumanMessage(content=user_input))
-        
-        # Afficher le message utilisateur
-        with st.chat_message("Human"):
-            st.markdown(user_input)
-        
-        # Obtenir la réponse de l'IA et mesurer le temps
+for message in st.session_state.chat_history.messages:
+    if isinstance(message, AIMessage):
         with st.chat_message("AI"):
-            response = run_chain(user_input, context)
-            st.write(response)
+            st.write(message.content)
+    elif isinstance(message, HumanMessage):
+        with st.chat_message("Human"):
+            st.write(message.content)
+
+# Entrée utilisateur
+user_input = st.chat_input("Posez votre question ici...")
+if user_input:
+    # Ajouter le message utilisateur à l'historique
+    add_message_to_history(HumanMessage(content=user_input))
+    
+    # Afficher le message utilisateur
+    with st.chat_message("Human"):
+        st.markdown(user_input)
+    
+    # Obtenir la réponse de l'IA et mesurer le temps
+    with st.chat_message("AI"):
+        response = run_chain(user_input, context)
+        st.write(response)
+    
+    # Ajouter la réponse de l'IA à l'historique
+    add_message_to_history(AIMessage(content=response))
+
+# Exemples de questions
+st.markdown('<div class="QUESTIONS EXAMPLES">', unsafe_allow_html=True)
+questions = [
+    "What's the price to charge?",
+    "Hello, I want to know what are the best applications?",
+    "What is the customer satisfaction rate among French users who switched to electric vehicles?",
+    "Can you provide a brief history of Peugeot's electric vehicles?",
+    "What are the main factors influencing the autonomy of an electric vehicle?",
+    "Tell me what's the price to charge my e-208, and then the time to recharge on a born."
+]
+
+for i, question in enumerate(questions, start=1):
+    with st.expander(f"Question {i}"):
+        st.write(question)
+# Affichage du CSV et bouton de téléchargement dans la sidebar
+with st.sidebar:
+    st.header("Export CSV")
+    if len(st.session_state.response_times) > 0:
+        # Assurer que la longueur des listes est égale avant de créer le DataFrame
+        num_pairs = min(len(st.session_state.chat_history.messages) // 2, len(st.session_state.response_times))
+        questions = [st.session_state.chat_history.messages[i].content for i in range(0, num_pairs * 2, 2)]
+        responses = [st.session_state.chat_history.messages[i + 1].content for i in range(0, num_pairs * 2, 2)]
+        first_token_times = [st.session_state.response_times[i]["first_token_time"] for i in range(num_pairs)]
+        total_elapsed_times = [st.session_state.response_times[i]["total_elapsed"] for i in range(num_pairs)]
+        streaming_elapsed_times = [st.session_state.response_times[i]["streaming_elapsed"] for i in range(num_pairs)]
         
-        # Ajouter la réponse de l'IA à l'historique
-        add_message_to_history(AIMessage(content=response))
+        df = pd.DataFrame({
+            "Question": questions,
+            "Réponse": responses,
+            "Temps premier token (s)": first_token_times,
+            "Temps total (s)": total_elapsed_times,
+            "Temps de streaming (s)": streaming_elapsed_times
+        })
 
-    # Exemples de questions
-    st.markdown('<div class="QUESTIONS EXAMPLES">', unsafe_allow_html=True)
-    questions = [
-        "What's the price to charge?",
-        "Hello, I want to know what are the best applications?",
-        "What is the customer satisfaction rate among French users who switched to electric vehicles?",
-        "Can you provide a brief history of Peugeot's electric vehicles?",
-        "What are the main factors influencing the autonomy of an electric vehicle?",
-        "Tell me what's the price to charge my e-208, and then the time to recharge on a born."
-    ]
-
-    for i, question in enumerate(questions, start=1):
-        with st.expander(f"Question {i}"):
-            st.write(question)
-
-
-with tab2:
-    # Create a DataFrame from the QA data
-    df = pd.DataFrame(st.session_state.qa_data)
-    
-    # Display the DataFrame
-    st.write("Summary of Questions and Answers:")
-    st.dataframe(df)
-    
-    # Provide a download button to save the DataFrame as a CSV
-    csv = df.to_csv(index=False).encode('utf-8')
-    st.download_button(label="Download data as CSV", data=csv, file_name='qa_data.csv', mime='text/csv')
-
+        # Afficher le tableau
+        st.write("Voici les temps de réponse :")
+        st.table(df)
+        
+        # Bouton de téléchargement
+        csv = save_results_to_csv()
+        st.download_button(
+            label="Télécharger les résultats en CSV",
+            data=csv,
+            file_name="chat_results.csv",
+            mime="text/csv",
+        )

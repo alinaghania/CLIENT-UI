@@ -16,6 +16,8 @@ st.title("B.O.B")
 # Session state pour l'historique des chats
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = InMemoryChatMessageHistory()
+    
+
 
 # Fonction pour mesurer le temps d'exécution pendant le streaming
 def measure_time(func):
