@@ -15,7 +15,8 @@ async def get_response(user_input: str):
     try:
         # Initialize the chain with user input
         chain = initialize_chain()
-
+        
+        print(f"Type of chain in app: {type(chain)}")
         # Invoke the chain to process the input and get the response
         response = chain.invoke({"input": user_input})
 

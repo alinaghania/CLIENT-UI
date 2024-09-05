@@ -1,0 +1,16 @@
+body {
+    background-image: url("https://upload.wikimedia.org/wikipedia/fr/9/9d/Peugeot_2021_Logo.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    opacity: 0.95;
+}
+
+[data-testid="stAppViewContainer"] {
+    background: rgba(255, 255, 255, 0.7); /* Slight white overlay to keep the content readable */
+}
+
+[data-testid="stHeader"] {
+    background: rgba(0, 0, 0, 0);
+}

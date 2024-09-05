@@ -62,8 +62,9 @@ def initialize_chain():
         memory=memory,
         output_parser=StrOutputParser()
     )
-
+    print(f"Type of chain: {type(chain)}")
     return chain
+
 
 # Function to add message to chat history
 def add_message_to_history(role, content):
