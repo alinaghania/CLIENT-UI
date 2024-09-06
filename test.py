@@ -19,11 +19,10 @@ os.environ["AWS_SECRET_ACCESS_KEY"] = st.secrets["aws_secret_access_key"]
 st.set_page_config(page_title="Bedrock Chat")
 st.title("Simple Bedrock Chatbot")
 
-# Initialize the Bedrock Chat model (Claude 3)
+# Initialize the Bedrock Chat model (Claude 3.5 Sonnet from Amazon Bedrock)
 chat = ChatBedrock(
-    model_id="anthropic.claude-3-sonnet-20240620-v1:0",  # You can change the model as per your requirements
-    session=session,  # Use the boto3 session
-    model_kwargs={"temperature": 0.1}  # Adjust parameters as needed
+    model_id="anthropic.claude-3-5-sonnet-20240620-v1:0",  # Update the model as needed
+    model_kwargs={"temperature": 0.1}  # Set model parameters
 )
 
 # Input from the user
