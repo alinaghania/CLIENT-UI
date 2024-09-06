@@ -31,12 +31,7 @@ def load_css(file_path):
 # Charger le CSS à partir du fichier styles.css
 load_css("style.css")
 
-# Configuration AWS avec les secrets de Streamlit
-session = boto3.Session(
-    aws_access_key_id=st.secrets["aws_access_key_id"],
-    aws_secret_access_key=st.secrets["aws_secret_access_key"],
-    region_name=st.secrets["region_name"]
-)
+
 st.write(st.secrets)
 
     
@@ -72,13 +67,20 @@ def add_message_to_history(message):
 # Fonction pour créer et initialiser la chaîne
 
 
+client = boto3.client(
+    'bedrock',
+    aws_access_key_id=st.secrets["aws_access_key_id"],
+    aws_secret_access_key=st.secrets["aws_secret_access_key"],
+    region_name=st.secrets["region_name"]
+)
 
-# Fonction pour choisir le modèle sur Bedrock
+# Ensuite, utilise ce client pour appeler Bedrock dans `choose_model`
 def choose_model():
-    # Choix du modèle Claude 3.5 Sonnet depuis Amazon Bedrock
-    bedrock_llm = ChatBedrock(model_id="anthropic.claude-3-5-sonnet-20240620-v1:0")
+    bedrock_llm = ChatBedrock(
+        model_id="anthropic.claude-3-5-sonnet-20240620-v1:0",
+        client=client  # Passer explicitement le client
+    )
     return bedrock_llm
-
 
 
 def initialize_chain():
