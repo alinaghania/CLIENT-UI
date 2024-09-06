@@ -97,6 +97,7 @@ def run_chain(input_text, context, session_id):
 
     return response
 
+context = None
 # Charger le contexte depuis un fichier
 def load_context():
     global context
