@@ -129,9 +129,19 @@ load_context()
 def add_message_to_history(message):
     st.session_state.chat_history.add_message(message)
  
+# Afficher tout l'historique des messages avant d'ajouter la nouvelle interaction
+for message in st.session_state.chat_history.messages:
+    if isinstance(message, HumanMessage):
+        with st.chat_message("Human"):
+            st.markdown(message.content)
+    elif isinstance(message, AIMessage):
+        with st.chat_message("AI"):
+            st.markdown(message.content)
+
 # Entrée utilisateur
 user_input = st.chat_input("Posez votre question ici...")
 if user_input:
+    # Ajouter le message utilisateur à l'historique
     add_message_to_history(HumanMessage(content=user_input))
     
     # Afficher le message utilisateur
@@ -143,4 +153,5 @@ if user_input:
         response = run_chain(user_input, context, session_id="peugeot_expert")
         st.write(response)
     
+    # Ajouter la réponse de l'IA à l'historique
     add_message_to_history(AIMessage(content=response))
