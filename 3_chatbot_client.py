@@ -5,10 +5,14 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_aws import ChatBedrock
 from pathlib import Path
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, MessagesPlaceholder
+from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.runnables.history import RunnableWithMessageHistory
 import boto3
 import os
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
 
 # Configuration de la page Streamlit
 st.set_page_config(page_title="Peugeot Expert")
