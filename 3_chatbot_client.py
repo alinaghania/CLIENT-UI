@@ -80,28 +80,34 @@ def initialize_chain():
 
     return wrapped_chain
 
-# Fonction pour exécuter la chaîne
 def run_chain(input_text, context, session_id):
     chain = initialize_chain()
     if chain is None:
         raise ValueError("Initialized chain is not valid.")
-    
+
     config = {
         "configurable": {
             "session_id": session_id
         }
     }
 
-    # Create an empty container to display the response progressively
+    # Print the config to debug
+    print(f"Config: {config}")
+
+    # Try streaming the response
     response_container = st.empty()
     response_text = ""
 
-    # Stream the response and display tokens in real-time
-    for token in chain.stream({"input": [input_text], "context": context}, config):
-        response_text += token
-        response_container.markdown(response_text)  # Update the response incrementally
+    try:
+        for token in chain.stream({"input": [input_text], "context": context}, config):
+            response_text += token
+            response_container.markdown(response_text)  # Update the response incrementally
+    except Exception as e:
+        st.error(f"Error during streaming: {e}")
+        print(f"Error: {e}")
 
     return response_text
+
 
 context = None
 # Charger le contexte depuis un fichier
