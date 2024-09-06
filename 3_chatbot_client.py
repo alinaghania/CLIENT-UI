@@ -147,10 +147,15 @@ if user_input:
     with st.chat_message("Human"):
         st.markdown(user_input)
     
-    # Obtenir la réponse de l'IA et mesurer le temps
+    # Afficher la réponse en flux
     with st.chat_message("AI"):
-        response = run_chain(user_input, context, session_id="peugeot_expert")
-        st.markdown(response)  # Utilise st.markdown pour afficher la réponse correctement
-    
-    # Ajouter la réponse de l'IA à l'historique
-    add_message_to_history(AIMessage(content=response))
+        # Création d'un conteneur Streamlit pour afficher la réponse de l'IA au fur et à mesure
+        response_placeholder = st.empty()  # Crée un conteneur vide
+        response_text = ""  # Chaîne pour stocker la réponse finale
+
+        for token in run_chain(user_input, context, session_id="peugeot_expert"):
+            response_text += token  # Ajouter chaque token à la réponse
+            response_placeholder.markdown(response_text)  # Afficher le texte incrémental
+        
+        # Ajouter la réponse complète de l'IA à l'historique
+        add_message_to_history(AIMessage(content=response_text))
