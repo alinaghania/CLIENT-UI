@@ -9,6 +9,9 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_aws import ChatBedrock
 from pathlib import Path
 from langchain_core.messages import AIMessage, HumanMessage
+import os
+os.environ["AWS_DEFAULT_REGION"] = st.secrets["region_name"]
+
 # Configuration de la page Streamlit
 st.set_page_config(page_title="Peugeot Expert")
 st.title("EV - Peugeot Expert")
