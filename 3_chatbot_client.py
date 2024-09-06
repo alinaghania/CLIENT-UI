@@ -7,6 +7,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_aws import ChatBedrock
 from pathlib import Path
 from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.chat_history import InMemoryChatMessageHistory
 import boto3
 import os
  
@@ -31,7 +32,11 @@ session = boto3.Session(
 os.environ["AWS_DEFAULT_REGION"] = st.secrets["region_name"]
 os.environ["AWS_ACCESS_KEY_ID"] = st.secrets["aws_access_key_id"]
 os.environ["AWS_SECRET_ACCESS_KEY"] = st.secrets["aws_secret_access_key"]
- 
+
+# Initialisation de l'historique des messages
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = InMemoryChatMessageHistory()
+
 # Fonction pour mesurer le temps d'exécution pendant le streaming
 def measure_time(func):
     @functools.wraps(func)
@@ -99,7 +104,14 @@ def run_chain(input_text, context, session_id):
             "session_id": session_id
         }
     }
-    response = chain.stream({"input": [input_text], "context": context}, config)  # Wrap input_text in a list
+    
+    # Convertir l'historique en format approprié pour le modèle
+    chat_history_messages = [message.content for message in st.session_state.chat_history.messages]
+    
+    # Ajouter l'historique des messages au contexte
+    full_input = f"{context}\n{' '.join(chat_history_messages)}\n{input_text}"
+    
+    response = chain.stream({"input": [full_input], "context": context}, config)  # Wrap input_text in a list
     return response
  
  
@@ -110,10 +122,16 @@ def load_context():
     if context is None:
         context = Path("parsed_data/peugeot_data.txt").read_text()
 load_context()
+
+# Fonction pour ajouter un message à l'historique
+def add_message_to_history(message):
+    st.session_state.chat_history.add_message(message)
  
 # Entrée utilisateur
 user_input = st.chat_input("Posez votre question ici...")
 if user_input:
+    add_message_to_history(HumanMessage(content=user_input))
+    
     # Afficher le message utilisateur
     with st.chat_message("Human"):
         st.markdown(user_input)
@@ -122,3 +140,5 @@ if user_input:
     with st.chat_message("AI"):
         response = run_chain(user_input, context, session_id="peugeot_expert")
         st.write(response)
+    
+    add_message_to_history(AIMessage(content=response))
