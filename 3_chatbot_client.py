@@ -82,6 +82,7 @@ def initialize_chain():
     system_prompt_path = Path("prompt/system_prompt.txt")
     system_prompt = system_prompt_path.read_text()
     
+    # Define the prompt correctly
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
         ("placeholder", "{chat_history}"),
@@ -90,23 +91,37 @@ def initialize_chain():
     
     bedrock_llm = choose_model()
     
-    chain = prompt | bedrock_llm | StrOutputParser()
-    
-    # Check and debug chat history
+    # Define a function to validate and debug chat history
     def get_chat_history():
         # Retrieve chat history
-        history = st.session_state.chat_history
+        history = st.session_state.get('chat_history', [])
+        
         # Debug print
         print("Chat History:", history)
-        st.write("Chat History:", history)
-        # Validate role alternation
+        
+        # Validate the format of history items
+        for message in history:
+            if not isinstance(message, dict):
+                print(f"Error: Message is not a dictionary: {message}")
+                st.write(f"Error: Message is not a dictionary: {message}")
+            elif not all(key in message for key in ["role", "content"]):
+                print(f"Error: Message is missing keys: {message}")
+                st.write(f"Error: Message is missing keys) {message}")
+            elif not isinstance(message["role"], str) or not isinstance(message["content"], str):
+                print(f"Error: Invalid types in message: {message}")
+                st.write(f"Error: Invalid types in message: {message}")
+        
+        # Check for role alternation
         last_role = None
         for message in history:
-            if last_role and last_role == message['role']:
+            if last_role and last_role == message["role"]:
                 print(f"Error: Consecutive roles found: {last_role} followed by {message['role']}")
                 st.write(f"Error: Consecutive roles found: {last_role} followed by {message['role']}")
-            last_role = message['role']
+            last_role = message["role"]
+        
         return history
+    
+    chain = prompt | bedrock_llm | StrOutputParser()
     
     wrapped_chain = RunnableWithMessageHistory(
         chain,
@@ -116,7 +131,6 @@ def initialize_chain():
     
     return wrapped_chain
 
-    return wrapped_chain
 
 
 
