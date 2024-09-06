@@ -86,21 +86,17 @@ def run_chain(input_text, context, session_id):
     chain = initialize_chain()
     if chain is None:
         raise ValueError("Initialized chain is not valid.")
-
+    
     config = {
         "configurable": {
             "session_id": session_id
         }
     }
     
-    # Assurer que le contexte est utilisé lors de l'appel
+    # Stream and output the response directly
     response = chain.stream({"input": [input_text], "context": context}, config)
-
-    # Ajouter la question de l'utilisateur et la réponse de l'IA à l'historique
-    add_message_to_history(HumanMessage(content=input_text))
-    add_message_to_history(AIMessage(content=response))
-
     return response
+
 
 context = None
 # Charger le contexte depuis un fichier
