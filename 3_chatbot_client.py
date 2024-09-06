@@ -1,3 +1,4 @@
+from langchain.memory import ConversationBufferMemory  # Importer BufferMemory
 from langchain_aws import BedrockLLM
 import streamlit as st
 import functools
@@ -6,7 +7,6 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_aws import ChatBedrock
 from pathlib import Path
-from langchain_core.messages import AIMessage, HumanMessage
 import boto3
 import os
 
@@ -48,9 +48,6 @@ def measure_time(func):
             end_time = datetime.now()
             total_elapsed = (end_time - start_time).total_seconds()
             streaming_elapsed = (end_time - first_token_time).total_seconds() if first_token_time else 0
-            # Optionally output time metrics
-            # st.write(f" Total response time: {total_elapsed:.2f} seconds.")
-            # st.write(f"Streaming time: {streaming_elapsed:.2f} seconds.")
         
         return streaming_wrapper()
     
@@ -62,12 +59,13 @@ def choose_model():
     bedrock_llm = ChatBedrock(model_id="anthropic.claude-3-5-sonnet-20240620-v1:0")
     return bedrock_llm
 
+# Fonction pour initialiser la chaîne avec la mémoire
 def initialize_chain():
     global system_prompt
     system_prompt_path = Path("prompt/system_prompt.txt")
     system_prompt = system_prompt_path.read_text()
     
-    # Define the prompt correctly
+    # Créer un modèle de prompt avec le système et un placeholder pour l'entrée utilisateur
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
         ("placeholder", "{input}")
@@ -75,31 +73,35 @@ def initialize_chain():
     
     bedrock_llm = choose_model()
     
-    # Ensure bedrock_llm is not None and is properly configured
+    # Assurer que le modèle est bien initialisé
     if bedrock_llm is None:
         raise ValueError("Bedrock model not initialized correctly.")
     
-    # Create the chain
-    chain = prompt | bedrock_llm | StrOutputParser()
+    # Attacher la mémoire à la chaîne
+    memory = st.session_state.get("memory", ConversationBufferMemory(return_messages=True))
     
-    # Ensure chain is not None
-    if chain is None:
-        raise ValueError("Chain creation failed.")
+    # Créer la chaîne avec le modèle et la mémoire
+    chain = prompt | bedrock_llm | StrOutputParser()
+    chain.memory = memory  # Ajouter la mémoire à la chaîne
     
     return chain
 
+# Fonction pour exécuter la chaîne
 @measure_time
 def run_chain(input_text, context, session_id):
     chain = initialize_chain()
     if chain is None:
         raise ValueError("Initialized chain is not valid.")
     
+    # Sauvegarder le contexte actuel dans la mémoire
+    chain.memory.save_context({"input": input_text}, {"response": context})
+    
     config = {
         "configurable": {
             "session_id": session_id
         }
     }
-    response = chain.stream({"input": [input_text], "context": context}, config)  # Wrap input_text in a list
+    response = chain.stream({"input": [input_text], "context": context}, config)
     return response
 
 
@@ -122,3 +124,8 @@ if user_input:
     with st.chat_message("AI"):
         response = run_chain(user_input, context, session_id="peugeot_expert")
         st.write(response)
+    
+    chain = initialize_chain()
+
+    # Sauvegarder la mémoire dans la session Streamlit
+    st.session_state.memory = chain.memory
