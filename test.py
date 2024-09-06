@@ -1,6 +1,7 @@
 import streamlit as st
 from langchain_aws import ChatBedrock
 from langchain_core.messages import HumanMessage
+import os
 
 # Setup your Bedrock credentials from Streamlit secrets
 import boto3
@@ -9,6 +10,10 @@ session = boto3.Session(
     aws_secret_access_key=st.secrets["aws_secret_access_key"],
     region_name=st.secrets["region_name"]
 )
+
+os.environ["AWS_DEFAULT_REGION"] = st.secrets["region_name"]
+os.environ["AWS_ACCESS_KEY_ID"] = st.secrets["aws_access_key_id"]
+os.environ["AWS_SECRET_ACCESS_KEY"] = st.secrets["aws_secret_access_key"]
 
 # Streamlit interface
 st.set_page_config(page_title="Bedrock Chat")
