@@ -106,7 +106,9 @@ def run_chain(input_text, context, session_id):
     }
     
     # Convertir l'historique en format approprié pour le modèle
-    chat_history_messages = [message.content for message in st.session_state.chat_history.messages]
+    # chat_history_messages = [message.content for message in st.session_state.chat_history.messages]
+    chat_history_messages = [str(message.content) for message in st.session_state.chat_history.messages]
+
     
     # Ajouter l'historique des messages au contexte
     full_input = f"{context}\n{' '.join(chat_history_messages)}\n{input_text}"
@@ -139,6 +141,6 @@ if user_input:
     # Obtenir la réponse de l'IA et mesurer le temps
     with st.chat_message("AI"):
         response = run_chain(user_input, context, session_id="peugeot_expert")
-        st.write(response)
+        st.write(str(response))
     
     add_message_to_history(AIMessage(content=response))
