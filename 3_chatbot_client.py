@@ -53,6 +53,7 @@ def choose_model():
     return bedrock_llm
 
 # Fonction d'initialisation de la chaîne
+# Fonction d'initialisation de la chaîne
 def initialize_chain():
     # Lire le prompt système depuis le fichier externe "prompt/system_prompt.txt"
     system_prompt_path = Path("prompt/system_prompt.txt")
@@ -74,11 +75,12 @@ def initialize_chain():
     # Envelopper la chaîne avec l'historique des messages pour maintenir la continuité du dialogue
     wrapped_chain = RunnableWithMessageHistory(
         chain,
-        lambda: st.session_state.chat_history,  # Utiliser l'historique des messages stocké dans la session
+        lambda session: st.session_state.chat_history,  # Accept the session as an argument
         history_messages_key="chat_history",
     )
 
     return wrapped_chain
+
 
 def run_chain(input_text, context, session_id):
     chain = initialize_chain()
