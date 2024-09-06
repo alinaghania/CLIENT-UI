@@ -141,6 +141,6 @@ if user_input:
     # Obtenir la réponse de l'IA et mesurer le temps
     with st.chat_message("AI"):
         response = run_chain(user_input, context, session_id="peugeot_expert")
-        st.write(str(response))
+        st.write(response)
     
     add_message_to_history(AIMessage(content=response))
