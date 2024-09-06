@@ -16,7 +16,7 @@ st.set_page_config(page_title="Peugeot Expert")
 st.title("EV - Peugeot Expert")
 st.write(f"<span style='color:red;font-weight:bold'> Expert en véhicules électriques Peugeot </span>", unsafe_allow_html=True)
  
-@st.cache_data
+ 
 def load_css(file_path):
     with open(file_path) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
@@ -62,8 +62,7 @@ def measure_time(func):
     
     return wrapper_measure_time
  
-# Fonction pour choisir le modèle sur Bedrock
-@st.cache_data
+@st.cache_resource
 def choose_model():
     # Choix du modèle Claude 3.5 Sonnet depuis Amazon Bedrock
     bedrock_llm = ChatBedrock(model_id="anthropic.claude-3-5-sonnet-20240620-v1:0")
@@ -119,6 +118,7 @@ def run_chain(input_text, context, session_id):
  
  
 context = None
+ 
  
 @st.cache_data
 def load_context():
