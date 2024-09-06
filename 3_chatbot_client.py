@@ -61,11 +61,22 @@ def measure_time(func):
         return streaming_wrapper()
     
     return wrapper_measure_time
-# Fonction pour vérifier et ajouter les messages tout en respectant l'alternance
 def add_message_to_history(message):
     history = st.session_state.chat_history
-    if len(history.messages) == 0 or type(history.messages[-1]) != type(message):
+    
+    if isinstance(message, HumanMessage):
+        role = "user"
+    elif isinstance(message, AIMessage):
+        role = "assistant"
+    else:
+        raise ValueError("Invalid message type")
+    
+    # Ensure the last message role is not the same as the new one
+    if len(history.messages) == 0 or isinstance(history.messages[-1], AIMessage) and role == "user":
         history.add_message(message)
+    elif isinstance(history.messages[-1], HumanMessage) and role == "assistant":
+        history.add_message(message)
+
         
 
 # Fonction pour choisir le modèle sur Bedrock
@@ -92,40 +103,38 @@ def initialize_chain():
     bedrock_llm = choose_model()
     
     # Define a function to validate and debug chat history
-    def get_chat_history():
-        # Retrieve chat history
-        history = st.session_state.get('chat_history', [])
-        
-        # Debug print
-        print("Chat History:", history)
-        
-        # Validate the format of history items
-        for message in history:
-            if not isinstance(message, dict):
-                print(f"Error: Message is not a dictionary: {message}")
-            elif not all(key in message for key in ["role", "content"]):
-                print(f"Error: Message is missing keys: {message}")
-            elif not isinstance(message["role"], str) or not isinstance(message["content"], str):
-                print(f"Error: Invalid types in message: {message}")
-        
-        # Check for role alternation
-        last_role = None
-        for message in history:
-            if last_role and last_role == message["role"]:
-                print(f"Error: Consecutive roles found: {last_role} followed by {message['role']}")
-            last_role = message["role"]
-        
-        return history
+
+def get_chat_history():
+    # Retrieve chat history
+    history = st.session_state.get('chat_history', InMemoryChatMessageHistory())
     
-    chain = prompt | bedrock_llm | StrOutputParser()
+    # Convert the history to a list of dictionaries for debugging
+    history_list = []
     
-    wrapped_chain = RunnableWithMessageHistory(
-        chain,
-        lambda _: get_chat_history(),
-        history_messages_key="chat_history",
-    )
+    # Debug print
+    print("Chat History:", history.messages)  # Inspect the messages
+
+    # Check the type of each message
+    for message in history.messages:
+        if isinstance(message, (AIMessage, HumanMessage)):
+            role = "assistant" if isinstance(message, AIMessage) else "user"
+            content = message.content
+            
+            # Append to history list for further processing
+            history_list.append({"role": role, "content": content})
+        else:
+            print(f"Error: Unexpected message type: {message}")
+
+    # Validate the format of history items
+    last_role = None
+    for message in history_list:
+        if last_role and last_role == message["role"]:
+            print(f"Error: Consecutive roles found: {last_role} followed by {message['role']}")
+        last_role = message["role"]
     
-    return wrapped_chain
+    return history_list
+
+
 
 
 
