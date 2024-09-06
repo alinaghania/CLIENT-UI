@@ -31,7 +31,12 @@ def load_css(file_path):
 # Charger le CSS à partir du fichier styles.css
 load_css("style.css")
 
-
+# Configuration AWS avec les secrets de Streamlit
+session = boto3.Session(
+    aws_access_key_id=st.secrets["aws_access_key_id"],
+    aws_secret_access_key=st.secrets["aws_secret_access_key"],
+    region_name=st.secrets["region_name"]
+)
 st.write(st.secrets)
 
     
@@ -67,50 +72,51 @@ def add_message_to_history(message):
 # Fonction pour créer et initialiser la chaîne
 
 
-client = boto3.client(
-    'bedrock',
+# Configuration AWS avec les secrets de Streamlit
+session = boto3.Session(
     aws_access_key_id=st.secrets["aws_access_key_id"],
     aws_secret_access_key=st.secrets["aws_secret_access_key"],
     region_name=st.secrets["region_name"]
 )
 
-# Ensuite, utilise ce client pour appeler Bedrock dans `choose_model`
+# Now, ensure ChatBedrock uses the correct credentials
 def choose_model():
+    client = session.client('bedrock')  # Create a Bedrock client with the session
     bedrock_llm = ChatBedrock(
         model_id="anthropic.claude-3-5-sonnet-20240620-v1:0",
-        client=client  # Passer explicitement le client
+        client=client  # Ensure the Bedrock client from the session is used
     )
     return bedrock_llm
 
-
+# Function to initialize the model chain
 def initialize_chain():
-    # Lire le prompt système depuis le fichier externe "prompt/system_prompt.txt"
     global system_prompt
     system_prompt_path = Path("prompt/system_prompt.txt")
     system_prompt = system_prompt_path.read_text()
 
-    # Définir le template du prompt avec les messages pour le système et l'utilisateur
     prompt = ChatPromptTemplate.from_messages([
-        ("system", system_prompt),  # Le prompt système lu depuis le fichier
-        ("placeholder", "{chat_history}"),  # Historique des messages pour maintenir le contexte
-        ("human", "{input}")  # Le message de l'utilisateur
+        ("system", system_prompt),
+        ("placeholder", "{chat_history}"),
+        ("human", "{input}")
     ])
 
-    # Obtenir le modèle choisi via la fonction choose_model()
     bedrock_llm = choose_model()
-
-    # Création de la chaîne en utilisant le modèle, le prompt et un output parser
     chain = prompt | bedrock_llm | StrOutputParser()
 
-    # Envelopper la chaîne avec l'historique des messages pour maintenir la continuité du dialogue
     wrapped_chain = RunnableWithMessageHistory(
         chain,
-        lambda _: st.session_state.chat_history,  # Ajout du paramètre "_"
+        lambda _: st.session_state.chat_history,
         history_messages_key="chat_history",
     )
-
     return wrapped_chain
 
+# Function to run the model chain and stream responses
+@functools.wraps(initialize_chain)
+def run_chain(input_text, context):
+    chain = initialize_chain()
+    config = {"configurable": {"session_id": "unique_session_id"}}
+    response = chain.stream({"input": input_text, "context": context}, config)
+    return response
 
 
 
