@@ -1,94 +1,56 @@
-from langchain_aws import BedrockLLM
+import os
+import boto3
 import streamlit as st
-import functools
+from langchain_aws import ChatBedrock
 from datetime import datetime
 from langchain_core.chat_history import InMemoryChatMessageHistory
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_aws import ChatBedrock
 from pathlib import Path
 from langchain_core.messages import AIMessage, HumanMessage
-import os
-os.environ["AWS_DEFAULT_REGION"] = st.secrets["region_name"]
+import functools
 
 # Configuration de la page Streamlit
 st.set_page_config(page_title="Peugeot Expert")
 st.title("EV - Peugeot Expert")
 st.write(f"<span style='color:red;font-weight:bold'> Expert en véhicules électriques Peugeot </span>", unsafe_allow_html=True)
 
-import boto3  
-
 # Session state pour l'historique des chats
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = InMemoryChatMessageHistory()
-    
-    
-def load_css(file_path):
-    with open(file_path) as f:
-        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-# Charger le CSS à partir du fichier styles.css
-load_css("style.css")
+def aws_configure():
+    """Configures AWS credentials and region from secrets or environment variables."""
+    aws_access_key_id = st.secrets.get("aws_access_key_id", os.getenv("AWS_ACCESS_KEY_ID"))
+    aws_secret_access_key = st.secrets.get("aws_secret_access_key", os.getenv("AWS_SECRET_ACCESS_KEY"))
+    region_name = st.secrets.get("region_name", os.getenv("AWS_DEFAULT_REGION"))
 
-# Configuration AWS avec les secrets de Streamlit
-session = boto3.Session(
-    aws_access_key_id=st.secrets["aws_access_key_id"],
-    aws_secret_access_key=st.secrets["aws_secret_access_key"],
-    region_name=st.secrets["region_name"]
-)
-st.write(st.secrets)
+    if not aws_access_key_id or not aws_secret_access_key or not region_name:
+        st.error("AWS credentials or region not found!")
+        return None
 
-    
-# Fonction pour mesurer le temps d'exécution pendant le streaming
-def measure_time(func):
-    @functools.wraps(func)
-    def wrapper_measure_time(*args, **kwargs):
-        start_time = datetime.now()
-        first_token_time = None
-        result = None
-        
-        def streaming_wrapper():
-            nonlocal first_token_time, result
-            for token in func(*args, **kwargs):
-                if first_token_time is None:
-                    first_token_time = datetime.now()
-                    # st.write(f"<span style='color:red;font-weight:bold'>First token received in {(first_token_time - start_time).total_seconds():.2f} seconds.</span>", unsafe_allow_html=True)
-                yield token
-            end_time = datetime.now()
-            total_elapsed = (end_time - start_time).total_seconds()
-            streaming_elapsed = (end_time - first_token_time).total_seconds() if first_token_time else 0
-            # st.write(f" Total response time: {total_elapsed:.2f} seconds.")
-            # st.write(f"Streaming time: {streaming_elapsed:.2f} seconds.")
-        
-        return streaming_wrapper()
-    
-    return wrapper_measure_time
-# Fonction pour vérifier et ajouter les messages tout en respectant l'alternance
-def add_message_to_history(message):
-    history = st.session_state.chat_history
-    if len(history.messages) == 0 or type(history.messages[-1]) != type(message):
-        history.add_message(message)
-# Fonction pour créer et initialiser la chaîne
-
-
-# Configuration AWS avec les secrets de Streamlit
-session = boto3.Session(
-    aws_access_key_id=st.secrets["aws_access_key_id"],
-    aws_secret_access_key=st.secrets["aws_secret_access_key"],
-    region_name=st.secrets["region_name"]
-)
-
-# Now, ensure ChatBedrock uses the correct credentials
-def choose_model():
-    client = session.client('bedrock')  # Create a Bedrock client with the session
-    bedrock_llm = ChatBedrock(
-        model_id="anthropic.claude-3-5-sonnet-20240620-v1:0",
-        client=client  # Ensure the Bedrock client from the session is used
+    session = boto3.Session(
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
+        region_name=region_name
     )
+    return session
+
+# Call the aws_configure function
+session = aws_configure()
+if session is None:
+    st.stop()  # Stops execution if AWS credentials are missing
+
+# Sample write for debugging
+st.write(f"AWS Region: {session.region_name}")
+
+# Function to choose the Bedrock model
+def choose_model():
+    bedrock_llm = ChatBedrock(model_id="anthropic.claude-3-5-sonnet-20240620-v1:0")
     return bedrock_llm
 
-# Function to initialize the model chain
+# Function to initialize the prompt chain
 def initialize_chain():
     global system_prompt
     system_prompt_path = Path("prompt/system_prompt.txt")
@@ -102,55 +64,43 @@ def initialize_chain():
 
     bedrock_llm = choose_model()
     chain = prompt | bedrock_llm | StrOutputParser()
-
     wrapped_chain = RunnableWithMessageHistory(
         chain,
         lambda _: st.session_state.chat_history,
-        history_messages_key="chat_history",
+        history_messages_key="chat_history"
     )
     return wrapped_chain
 
-# Function to run the model chain and stream responses
-@functools.wraps(initialize_chain)
-def run_chain(input_text, context):
-    chain = initialize_chain()
-    config = {"configurable": {"session_id": "unique_session_id"}}
-    response = chain.stream({"input": input_text, "context": context}, config)
-    return response
+# Function to measure time execution
+def measure_time(func):
+    @functools.wraps(func)
+    def wrapper_measure_time(*args, **kwargs):
+        start_time = datetime.now()
+        first_token_time = None
+        result = None
 
+        def streaming_wrapper():
+            nonlocal first_token_time, result
+            for token in func(*args, **kwargs):
+                if first_token_time is None:
+                    first_token_time = datetime.now()
+                yield token
+            end_time = datetime.now()
+            total_elapsed = (end_time - start_time).total_seconds()
+            streaming_elapsed = (end_time - first_token_time).total_seconds() if first_token_time else 0
+        
+        return streaming_wrapper()
+    return wrapper_measure_time
 
-
-
-# # Appliquer le décorateur pour mesurer le temps d'exécution
-# @measure_time
-# def run_chain(input_text, context):
-#     chain = initialize_chain()
-#     response = chain.stream({"input": input_text, "context": context})
-#     return response
-
-# Appliquer le décorateur pour mesurer le temps d'exécution
+# Run the chain with a measured time decorator
 @measure_time
 def run_chain(input_text, context):
-    # Initialiser la chaîne avec le modèle et le prompt
     chain = initialize_chain()
-
-    # Définir un session_id (tu peux générer une valeur unique pour chaque session)
-    config = {"configurable": {"session_id": "unique_session_id"}}
-
-    # Obtenir la réponse en mode streaming avec session_id dans la configuration
-    response = chain.stream({"input": input_text, "context": context}, config)
+    response = chain.stream({"input": input_text, "context": context})
     return response
 
-
-
-
-# # Charger le contexte du document
-# context = Path("parsed_data/peugeot_data.txt").read_text()
-
-
-# Charger le contexte du document
+# Load context
 context = None
-
 def load_context():
     global context
     if context is None:
@@ -158,35 +108,13 @@ def load_context():
 
 load_context()
 
-# # # Afficher l'historique des messages
-# for message in st.session_state.chat_history.messages:
-#     if isinstance(message, AIMessage):
-#         with st.chat_message("AI"):
-#             st.write(message.content)
-#     elif isinstance(message, HumanMessage):
-#         with st.chat_message("Human"):
-#             st.write(message.content)            
+# Define add_message_to_history
+def add_message_to_history(message):
+    history = st.session_state.chat_history
+    if len(history.messages) == 0 or type(history.messages[-1]) != type(message):
+        history.add_message(message)
 
-# # Entrée utilisateur
-# user_input = st.chat_input("Posez votre question ici...")
-# if user_input:
-#     # Ajouter le message utilisateur à l'historique
-#     add_message_to_history(HumanMessage(content=user_input))
-    
-#     # Afficher le message utilisateur
-#     with st.chat_message("Human"):
-#         st.markdown(user_input)
-    
-#     # Obtenir la réponse de l'IA et mesurer le temps
-#     with st.chat_message("AI"):
-#         response = run_chain(user_input, context)
-#         st.write(response)
-    
-#     # Ajouter la réponse de l'IA à l'historique
-#     add_message_to_history(AIMessage(content=response))    
-
-    
-# Afficher l'historique des messages
+# Display chat history
 for message in st.session_state.chat_history.messages:
     if isinstance(message, AIMessage):
         with st.chat_message("AI"):
@@ -195,38 +123,17 @@ for message in st.session_state.chat_history.messages:
         with st.chat_message("Human"):
             st.write(message.content)
 
-# Entrée utilisateur
+# User input and chain execution
 user_input = st.chat_input("Posez votre question ici...")
 if user_input:
-    # Ajouter le message utilisateur à l'historique
     add_message_to_history(HumanMessage(content=user_input))
     
-    # Afficher le message utilisateur
     with st.chat_message("Human"):
         st.markdown(user_input)
     
-    # Obtenir la réponse de l'IA et mesurer le temps
     with st.chat_message("AI"):
         response = run_chain(user_input, context)
         st.write(response)
     
-    # Ajouter la réponse de l'IA à l'historique
     add_message_to_history(AIMessage(content=response))
 
-
-    
-    
-    
-# Exemples de questions
-# st.markdown('<div class="QUESTIONS EXAMPLES">', unsafe_allow_html=True)
-# questions = [
-#     "Quel est le prix de la recharge ?",
-#     "Bonjour, je souhaite savoir quelles sont les meilleures applications ?",
-#     "Quel est le taux de satisfaction client parmi les utilisateurs français qui sont passés aux véhicules électriques ?",
-#     "Pouvez-vous fournir un bref historique des véhicules électriques de Peugeot ?",
-#     "Quels sont les principaux facteurs influençant l'autonomie d'un véhicule électrique ?",
-#     "Dites-moi quel est le prix pour recharger ma e-208, puis le temps de recharge sur une borne."
-# ]
-# for i, question in enumerate(questions, start=1):
-#     with st.expander(f"Question {i}"):
-#         st.write(question)
