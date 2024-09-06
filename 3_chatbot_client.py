@@ -99,8 +99,9 @@ def run_chain(input_text, context, session_id):
             "session_id": session_id
         }
     }
-    response = chain.stream({"input": input_text, "context": context}, config)
+    response = chain.stream({"input": [input_text], "context": context}, config)  # Wrap input_text in a list
     return response
+
 
 context = None
 
