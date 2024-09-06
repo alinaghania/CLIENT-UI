@@ -96,9 +96,9 @@ def measure_time(func):
 @measure_time
 def run_chain(input_text, context):
     chain = initialize_chain()
-    response = chain.stream({"input": input_text, "context": context})
+    config = {"configurable": {"session_id": "unique_session_id"}}
+    response = chain.stream({"input": input_text, "context": context}, config)
     return response
-
 # Load context
 context = None
 def load_context():
