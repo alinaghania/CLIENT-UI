@@ -1,26 +1,34 @@
 import streamlit as st
-from langchain_aws import BedrockLLM
-import boto3
+from langchain_aws import ChatBedrock
+from langchain_core.messages import HumanMessage
 
-# Set up AWS credentials
+# Setup your Bedrock credentials from Streamlit secrets
+import boto3
 session = boto3.Session(
     aws_access_key_id=st.secrets["aws_access_key_id"],
     aws_secret_access_key=st.secrets["aws_secret_access_key"],
     region_name=st.secrets["region_name"]
 )
 
-# Create Bedrock client and model setup
-bedrock_runtime = session.client('bedrock-runtime')
-llm = BedrockLLM(client=bedrock_runtime, model_id="anthropic.claude-1")
+# Streamlit interface
+st.set_page_config(page_title="Bedrock Chat")
+st.title("Simple Bedrock Chatbot")
 
-# Streamlit UI Setup
-st.title("Simple Chatbot")
-st.write("Ask anything and get a response from the Claude LLM")
+# Initialize the Bedrock Chat model (Claude 3)
+chat = ChatBedrock(
+    model_id="anthropic.claude-3-sonnet-20240620-v1:0",  # You can change the model as per your requirements
+    session=session,  # Use the boto3 session
+    model_kwargs={"temperature": 0.1}  # Adjust parameters as needed
+)
 
-# Chat input
-user_input = st.text_input("Your question:", "")
+# Input from the user
+user_input = st.text_input("Ask anything:", placeholder="Enter your question here...")
 
-# If user input is given
+# If the user provides input, send it to Bedrock for processing
 if user_input:
-    response = llm.invoke_model(input_text=user_input)
-    st.write(f"Response: {response['body']['output']}")
+    # Prepare the message in the correct format
+    messages = [HumanMessage(content=user_input)]
+    
+    # Stream the response from Bedrock
+    for chunk in chat.stream(messages):
+        st.write(chunk.content)
