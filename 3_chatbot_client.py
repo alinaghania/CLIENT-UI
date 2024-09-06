@@ -103,20 +103,16 @@ def initialize_chain():
         for message in history:
             if not isinstance(message, dict):
                 print(f"Error: Message is not a dictionary: {message}")
-                st.write(f"Error: Message is not a dictionary: {message}")
             elif not all(key in message for key in ["role", "content"]):
                 print(f"Error: Message is missing keys: {message}")
-                st.write(f"Error: Message is missing keys) {message}")
             elif not isinstance(message["role"], str) or not isinstance(message["content"], str):
                 print(f"Error: Invalid types in message: {message}")
-                st.write(f"Error: Invalid types in message: {message}")
         
         # Check for role alternation
         last_role = None
         for message in history:
             if last_role and last_role == message["role"]:
                 print(f"Error: Consecutive roles found: {last_role} followed by {message['role']}")
-                st.write(f"Error: Consecutive roles found: {last_role} followed by {message['role']}")
             last_role = message["role"]
         
         return history
@@ -130,6 +126,7 @@ def initialize_chain():
     )
     
     return wrapped_chain
+
 
 
 
