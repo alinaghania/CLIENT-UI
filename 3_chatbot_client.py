@@ -2,10 +2,8 @@ from langchain_aws import BedrockLLM
 import streamlit as st
 import functools
 from datetime import datetime
-from langchain_core.chat_history import InMemoryChatMessageHistory
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_aws import ChatBedrock
 from pathlib import Path
 from langchain_core.messages import AIMessage, HumanMessage
@@ -16,13 +14,6 @@ import os
 st.set_page_config(page_title="Peugeot Expert")
 st.title("EV - Peugeot Expert")
 st.write(f"<span style='color:red;font-weight:bold'> Expert en véhicules électriques Peugeot </span>", unsafe_allow_html=True)
-
-# Session state pour l'historique des chats
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = InMemoryChatMessageHistory()
-else:
-    if not isinstance(st.session_state.chat_history, InMemoryChatMessageHistory):
-        st.session_state.chat_history = InMemoryChatMessageHistory()
 
 def load_css(file_path):
     with open(file_path) as f:
@@ -65,26 +56,6 @@ def measure_time(func):
     
     return wrapper_measure_time
 
-def add_message_to_history(message):
-    history = st.session_state.chat_history
-    
-    if not isinstance(history, InMemoryChatMessageHistory):
-        print("Error: chat_history is not of type InMemoryChatMessageHistory.")
-        return
-    
-    if isinstance(message, HumanMessage):
-        role = "user"
-    elif isinstance(message, AIMessage):
-        role = "assistant"
-    else:
-        raise ValueError("Invalid message type")
-    
-    # Ensure the last message role is not the same as the new one
-    if len(history.messages) == 0 or isinstance(history.messages[-1], AIMessage) and role == "user":
-        history.add_message(message)
-    elif isinstance(history.messages[-1], HumanMessage) and role == "assistant":
-        history.add_message(message)
-
 # Fonction pour choisir le modèle sur Bedrock
 def choose_model():
     # Choix du modèle Claude 3.5 Sonnet depuis Amazon Bedrock
@@ -99,8 +70,7 @@ def initialize_chain():
     # Define the prompt correctly
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
-        ("placeholder", "{chat_history}"),
-        ("human", "{input}")
+        ("placeholder", "{input}")
     ])
     
     bedrock_llm = choose_model()
@@ -116,55 +86,13 @@ def initialize_chain():
     if chain is None:
         raise ValueError("Chain creation failed.")
     
-    # Wrap the chain with message history
-    wrapped_chain = RunnableWithMessageHistory(
-        chain,
-        lambda _: get_chat_history(),
-        history_messages_key="chat_history",
-    )
-    
-    return wrapped_chain
-
-def get_chat_history():
-    # Retrieve chat history
-    history = st.session_state.get('chat_history', InMemoryChatMessageHistory())
-    
-    # Check if history is an instance of InMemoryChatMessageHistory
-    if not isinstance(history, InMemoryChatMessageHistory):
-        print("Error: chat_history is unexpectedly of type", type(history))
-        return []
-
-    # Convert the history to a list of dictionaries for debugging
-    history_list = []
-    
-    # Debug print
-    print("Chat History:", history.messages)  # Inspect the messages
-
-    # Check the type of each message
-    for message in history.messages:
-        if isinstance(message, (AIMessage, HumanMessage)):
-            role = "assistant" if isinstance(message, AIMessage) else "user"
-            content = message.content
-            
-            # Append to history list for further processing
-            history_list.append({"role": role, "content": content})
-        else:
-            print(f"Error: Unexpected message type: {message}")
-
-    # Validate the format of history items
-    last_role = None
-    for message in history_list:
-        if last_role and last_role == message["role"]:
-            print(f"Error: Consecutive roles found: {last_role} followed by {message['role']}")
-        last_role = message["role"]
-    
-    return history_list
+    return chain
 
 @measure_time
 def run_chain(input_text, context, session_id):
     chain = initialize_chain()
-    if not isinstance(chain, RunnableWithMessageHistory):
-        raise ValueError("Initialized chain is not of type RunnableWithMessageHistory.")
+    if chain is None:
+        raise ValueError("Initialized chain is not valid.")
     
     config = {
         "configurable": {
@@ -182,26 +110,9 @@ def load_context():
         context = Path("parsed_data/peugeot_data.txt").read_text()
 load_context()
 
-# Afficher l'historique des messages
-history = st.session_state.get('chat_history', InMemoryChatMessageHistory())
-
-if isinstance(history, InMemoryChatMessageHistory):
-    for message in history.messages:
-        if isinstance(message, AIMessage):
-            with st.chat_message("AI"):
-                st.write(message.content)
-        elif isinstance(message, HumanMessage):
-            with st.chat_message("Human"):
-                st.write(message.content)
-else:
-    print("Error: chat_history is not an instance of InMemoryChatMessageHistory.")
-
 # Entrée utilisateur
 user_input = st.chat_input("Posez votre question ici...")
 if user_input:
-    # Ajouter le message utilisateur à l'historique
-    add_message_to_history(HumanMessage(content=user_input))
-    
     # Afficher le message utilisateur
     with st.chat_message("Human"):
         st.markdown(user_input)
@@ -210,6 +121,3 @@ if user_input:
     with st.chat_message("AI"):
         response = run_chain(user_input, context, session_id="peugeot_expert")
         st.write(response)
-    
-    # Ajouter la réponse de l'IA à l'historique
-    add_message_to_history(AIMessage(content=response))
