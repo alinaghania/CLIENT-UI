@@ -87,7 +87,6 @@ def choose_model():
 
 
 
-
 def initialize_chain():
     global system_prompt
     system_prompt_path = Path("prompt/system_prompt.txt")
@@ -102,7 +101,26 @@ def initialize_chain():
     
     bedrock_llm = choose_model()
     
-    # Define a function to validate and debug chat history
+    # Ensure bedrock_llm is not None and is properly configured
+    if bedrock_llm is None:
+        raise ValueError("Bedrock model not initialized correctly.")
+    
+    # Create the chain
+    chain = prompt | bedrock_llm | StrOutputParser()
+    
+    # Ensure chain is not None
+    if chain is None:
+        raise ValueError("Chain creation failed.")
+    
+    # Wrap the chain with message history
+    wrapped_chain = RunnableWithMessageHistory(
+        chain,
+        lambda _: get_chat_history(),
+        history_messages_key="chat_history",
+    )
+    
+    return wrapped_chain
+
 
 def get_chat_history():
     # Retrieve chat history
