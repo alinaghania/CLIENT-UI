@@ -56,13 +56,13 @@ def measure_time(func):
 def choose_model():
     return ChatBedrock(model_id="anthropic.claude-3-5-sonnet-20240620-v1:0")
 
-# Initialize memory and chain
+# Initialize the chain with prompt and memory management
 def initialize_chain():
     global system_prompt
     system_prompt_path = Path("prompt/system_prompt.txt")
     system_prompt = system_prompt_path.read_text()
 
-    # Setup prompt with memory
+    # Setup prompt
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
         ("placeholder", "{input}")
@@ -70,18 +70,20 @@ def initialize_chain():
     
     bedrock_llm = choose_model()
     
-    # Initialize memory
-    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-
-    # Create the chain with memory and prompt
+    # Initialize the chain without memory since RunnableSequence doesn't support memory directly
     chain = prompt | bedrock_llm | StrOutputParser()
-    chain.memory = memory  # Attach memory to the chain
     
     return chain
+
+# Manage memory manually
+memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
 @measure_time
 def run_chain(input_text, context, session_id):
     chain = initialize_chain()
+    
+    # Retrieve conversation history from memory
+    chat_history = memory.load_memory_variables({})["chat_history"]
     
     config = {
         "configurable": {
@@ -89,7 +91,12 @@ def run_chain(input_text, context, session_id):
         }
     }
     
-    response = chain.stream({"input": [input_text], "context": context}, config)
+    # Run the chain with both user input and chat history
+    response = chain.stream({"input": [input_text], "context": context, "chat_history": chat_history}, config)
+    
+    # Update memory with new context
+    memory.save_context({"input": input_text}, {"response": response})
+    
     return response
 
 # Load context
