@@ -82,10 +82,6 @@ def initialize_chain():
     system_prompt_path = Path("prompt/system_prompt.txt")
     system_prompt = system_prompt_path.read_text()
     
-    # Debugging: print the system prompt
-    print("System Prompt:", system_prompt)
-    st.write("System Prompt:", system_prompt)
-    
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
         ("placeholder", "{chat_history}"),
@@ -94,22 +90,32 @@ def initialize_chain():
     
     bedrock_llm = choose_model()
     
-    # Debugging: print chosen model info
-    print("Chosen Model:", bedrock_llm)
-    st.write("Chosen Model:", bedrock_llm)
-    
     chain = prompt | bedrock_llm | StrOutputParser()
     
-    # Debugging: print chat history
-    print("Chat History:", st.session_state.chat_history)
-    st.write("Chat History:", st.session_state.chat_history)
+    # Check and debug chat history
+    def get_chat_history():
+        # Retrieve chat history
+        history = st.session_state.chat_history
+        # Debug print
+        print("Chat History:", history)
+        st.write("Chat History:", history)
+        # Validate role alternation
+        last_role = None
+        for message in history:
+            if last_role and last_role == message['role']:
+                print(f"Error: Consecutive roles found: {last_role} followed by {message['role']}")
+                st.write(f"Error: Consecutive roles found: {last_role} followed by {message['role']}")
+            last_role = message['role']
+        return history
     
     wrapped_chain = RunnableWithMessageHistory(
         chain,
-        lambda _: st.session_state.chat_history,
+        lambda _: get_chat_history(),
         history_messages_key="chat_history",
     )
     
+    return wrapped_chain
+
     return wrapped_chain
 
 
