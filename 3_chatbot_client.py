@@ -107,7 +107,8 @@ def initialize_chain():
 @measure_time
 def run_chain(input_text, context):
     chain = initialize_chain()
-    response = chain.stream({"input": input_text, "context": context})
+    configure = {"input": input_text, "context": context}
+    response = chain.stream({"input": input_text, "context": context}, configure)
     return response
 # # Charger le contexte du document
 # context = Path("parsed_data/peugeot_data.txt").read_text()
