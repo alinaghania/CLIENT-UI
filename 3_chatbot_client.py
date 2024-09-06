@@ -84,6 +84,7 @@ def initialize_chain():
     
     # Debugging: print the system prompt
     print("System Prompt:", system_prompt)
+    st.write("System Prompt:", system_prompt)
     
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
@@ -95,11 +96,13 @@ def initialize_chain():
     
     # Debugging: print chosen model info
     print("Chosen Model:", bedrock_llm)
+    st.write("Chosen Model:", bedrock_llm)
     
     chain = prompt | bedrock_llm | StrOutputParser()
     
     # Debugging: print chat history
     print("Chat History:", st.session_state.chat_history)
+    st.write("Chat History:", st.session_state.chat_history)
     
     wrapped_chain = RunnableWithMessageHistory(
         chain,
