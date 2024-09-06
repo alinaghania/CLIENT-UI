@@ -7,6 +7,7 @@ from langchain_aws import ChatBedrock
 from pathlib import Path
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_core.chat_history import InMemoryChatMessageHistory
 import boto3
 import os
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -36,15 +37,13 @@ os.environ["AWS_DEFAULT_REGION"] = st.secrets["region_name"]
 os.environ["AWS_ACCESS_KEY_ID"] = st.secrets["aws_access_key_id"]
 os.environ["AWS_SECRET_ACCESS_KEY"] = st.secrets["aws_secret_access_key"]
 
-# Initialiser l'historique des messages
+# Initialiser l'historique des messages avec InMemoryChatMessageHistory
 if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
+    st.session_state.chat_history = InMemoryChatMessageHistory()
 
 # Fonction pour ajouter un message tout en respectant l'alternance
 def add_message_to_history(message):
-    history = st.session_state.chat_history
-    if len(history) == 0 or type(history[-1]) != type(message):
-        history.append(message)
+    st.session_state.chat_history.add_message(message)
 
 # Fonction pour choisir le modèle sur Bedrock
 def choose_model():
@@ -52,7 +51,6 @@ def choose_model():
     bedrock_llm = ChatBedrock(model_id="anthropic.claude-3-5-sonnet-20240620-v1:0")
     return bedrock_llm
 
-# Fonction d'initialisation de la chaîne
 # Fonction d'initialisation de la chaîne
 def initialize_chain():
     # Lire le prompt système depuis le fichier externe "prompt/system_prompt.txt"
@@ -75,7 +73,7 @@ def initialize_chain():
     # Envelopper la chaîne avec l'historique des messages pour maintenir la continuité du dialogue
     wrapped_chain = RunnableWithMessageHistory(
         chain,
-        lambda session: st.session_state.chat_history,  # Accept the session as an argument
+        lambda session: st.session_state.chat_history.messages,  # Accept the session and get the chat history
         history_messages_key="chat_history",
     )
 
@@ -122,10 +120,14 @@ load_context()
 # Entrée utilisateur
 user_input = st.chat_input("Posez votre question ici...")
 if user_input:
+    # Ajouter le message utilisateur à l'historique
+    add_message_to_history(HumanMessage(content=user_input))
+    
     # Afficher le message utilisateur
     with st.chat_message("Human"):
         st.markdown(user_input)
     
-    # Obtenir la réponse de l'IA et mesurer le temps
+    # Obtenir la réponse de l'IA et l'ajouter à l'historique
     with st.chat_message("AI"):
-        run_chain(user_input, context, session_id="peugeot_expert")
+        response = run_chain(user_input, context, session_id="peugeot_expert")
+        add_message_to_history(AIMessage(content=response))
