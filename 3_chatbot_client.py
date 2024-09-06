@@ -1,113 +1,149 @@
+from langchain_aws import BedrockLLM
 import streamlit as st
-from langchain_aws import ChatBedrock
+import functools
+from datetime import datetime
 from langchain_core.chat_history import InMemoryChatMessageHistory
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_aws import ChatBedrock
+from pathlib import Path
 from langchain_core.messages import AIMessage, HumanMessage
 import os
-from datetime import datetime
-import functools
-from pathlib import Path
-
-# Set AWS environment variables from Streamlit secrets
 os.environ["AWS_DEFAULT_REGION"] = st.secrets["region_name"]
-os.environ["AWS_ACCESS_KEY_ID"] = st.secrets["aws_access_key_id"]
-os.environ["AWS_SECRET_ACCESS_KEY"] = st.secrets["aws_secret_access_key"]
 
-# Configuration of the Streamlit page
+# Configuration de la page Streamlit
 st.set_page_config(page_title="Peugeot Expert")
 st.title("EV - Peugeot Expert")
-st.write("<span style='color:red;font-weight:bold'> Expert en véhicules électriques Peugeot </span>", unsafe_allow_html=True)
+st.write(f"<span style='color:red;font-weight:bold'> Expert en véhicules électriques Peugeot </span>", unsafe_allow_html=True)
 
-# Session state for chat history
+import boto3  
+
+# Session state pour l'historique des chats
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = InMemoryChatMessageHistory()
-
-# Load custom CSS for the app
+    
+    
 def load_css(file_path):
     with open(file_path) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
+# Charger le CSS à partir du fichier styles.css
 load_css("style.css")
 
-# Function to measure execution time
+# Configuration AWS avec les secrets de Streamlit
+session = boto3.Session(
+    aws_access_key_id=st.secrets["aws_access_key_id"],
+    aws_secret_access_key=st.secrets["aws_secret_access_key"],
+    region_name=st.secrets["region_name"]
+)
+st.write(st.secrets)
+
+os.environ["AWS_DEFAULT_REGION"] = st.secrets["region_name"]
+os.environ["AWS_ACCESS_KEY_ID"] = st.secrets["aws_access_key_id"]
+os.environ["AWS_SECRET_ACCESS_KEY"] = st.secrets["aws_secret_access_key"]
+    
+# Fonction pour mesurer le temps d'exécution pendant le streaming
 def measure_time(func):
     @functools.wraps(func)
     def wrapper_measure_time(*args, **kwargs):
         start_time = datetime.now()
         first_token_time = None
         result = None
-
+        
         def streaming_wrapper():
             nonlocal first_token_time, result
             for token in func(*args, **kwargs):
                 if first_token_time is None:
                     first_token_time = datetime.now()
+                    # st.write(f"<span style='color:red;font-weight:bold'>First token received in {(first_token_time - start_time).total_seconds():.2f} seconds.</span>", unsafe_allow_html=True)
                 yield token
-
             end_time = datetime.now()
             total_elapsed = (end_time - start_time).total_seconds()
             streaming_elapsed = (end_time - first_token_time).total_seconds() if first_token_time else 0
-            st.write(f"Total response time: {total_elapsed:.2f} seconds.")
-            st.write(f"Streaming time: {streaming_elapsed:.2f} seconds.")
-
+            # st.write(f" Total response time: {total_elapsed:.2f} seconds.")
+            # st.write(f"Streaming time: {streaming_elapsed:.2f} seconds.")
+        
         return streaming_wrapper()
-
+    
     return wrapper_measure_time
-
-# Function to add messages to chat history
+# Fonction pour vérifier et ajouter les messages tout en respectant l'alternance
 def add_message_to_history(message):
     history = st.session_state.chat_history
     if len(history.messages) == 0 or type(history.messages[-1]) != type(message):
         history.add_message(message)
+# Fonction pour créer et initialiser la chaîne
 
-# Function to choose the Bedrock model
+
+
+# Fonction pour choisir le modèle sur Bedrock
 def choose_model():
-    return ChatBedrock(model_id="anthropic.claude-3-5-sonnet-20240620-v1:0")
+    # Choix du modèle Claude 3.5 Sonnet depuis Amazon Bedrock
+    bedrock_llm = ChatBedrock(model_id="anthropic.claude-3-5-sonnet-20240620-v1:0")
+    return bedrock_llm
 
-# Initialize the prompt and model chain
+
+
 def initialize_chain():
+    # Lire le prompt système depuis le fichier externe "prompt/system_prompt.txt"
+    global system_prompt
     system_prompt_path = Path("prompt/system_prompt.txt")
     system_prompt = system_prompt_path.read_text()
 
-    # Define the prompt template
+    # Définir le template du prompt avec les messages pour le système et l'utilisateur
     prompt = ChatPromptTemplate.from_messages([
-        ("system", system_prompt),
-        ("placeholder", "{chat_history}"),
-        ("human", "{input}")
+        ("system", system_prompt),  # Le prompt système lu depuis le fichier
+        ("placeholder", "{chat_history}"),  # Historique des messages pour maintenir le contexte
+        ("human", "{input}")  # Le message de l'utilisateur
     ])
 
-    # Choose the model
+    # Obtenir le modèle choisi via la fonction choose_model()
     bedrock_llm = choose_model()
 
-    # Create a chain using the model, prompt, and output parser
+    # Création de la chaîne en utilisant le modèle, le prompt et un output parser
     chain = prompt | bedrock_llm | StrOutputParser()
 
-    # Wrap the chain with message history to maintain dialogue continuity
+    # Envelopper la chaîne avec l'historique des messages pour maintenir la continuité du dialogue
     wrapped_chain = RunnableWithMessageHistory(
         chain,
-        lambda: st.session_state.chat_history,  # Function to get chat history
-        history_messages_key="chat_history"
+        lambda _: st.session_state.chat_history,  # Ajout du paramètre "_"
+        history_messages_key="chat_history",
     )
 
     return wrapped_chain
 
-# Function to run the model chain
+
+
+
+
+# # Appliquer le décorateur pour mesurer le temps d'exécution
+# @measure_time
+# def run_chain(input_text, context):
+#     chain = initialize_chain()
+#     response = chain.stream({"input": input_text, "context": context})
+#     return response
+
+# Appliquer le décorateur pour mesurer le temps d'exécution
 @measure_time
 def run_chain(input_text, context):
-    # Initialize the chain
+    # Initialiser la chaîne avec le modèle et le prompt
     chain = initialize_chain()
 
-    # Configuration with session_id
-    config = {"configurable": {"session_id": "unique_session_id"}}
 
-    # Get the response by streaming
-    response = chain.stream({"input": input_text, "context": context}, config)
+    # Obtenir la réponse en mode streaming avec session_id dans la configuration
+    response = chain.stream({"input": input_text, "context": context})
     return response
 
-# Load the context from a file (e.g., specific to Peugeot data)
+
+
+
+# # Charger le contexte du document
+# context = Path("parsed_data/peugeot_data.txt").read_text()
+
+
+# Charger le contexte du document
 context = None
+
 def load_context():
     global context
     if context is None:
@@ -115,7 +151,35 @@ def load_context():
 
 load_context()
 
-# Display the chat history
+# # # Afficher l'historique des messages
+# for message in st.session_state.chat_history.messages:
+#     if isinstance(message, AIMessage):
+#         with st.chat_message("AI"):
+#             st.write(message.content)
+#     elif isinstance(message, HumanMessage):
+#         with st.chat_message("Human"):
+#             st.write(message.content)            
+
+# # Entrée utilisateur
+# user_input = st.chat_input("Posez votre question ici...")
+# if user_input:
+#     # Ajouter le message utilisateur à l'historique
+#     add_message_to_history(HumanMessage(content=user_input))
+    
+#     # Afficher le message utilisateur
+#     with st.chat_message("Human"):
+#         st.markdown(user_input)
+    
+#     # Obtenir la réponse de l'IA et mesurer le temps
+#     with st.chat_message("AI"):
+#         response = run_chain(user_input, context)
+#         st.write(response)
+    
+#     # Ajouter la réponse de l'IA à l'historique
+#     add_message_to_history(AIMessage(content=response))    
+
+    
+# Afficher l'historique des messages
 for message in st.session_state.chat_history.messages:
     if isinstance(message, AIMessage):
         with st.chat_message("AI"):
@@ -124,20 +188,38 @@ for message in st.session_state.chat_history.messages:
         with st.chat_message("Human"):
             st.write(message.content)
 
-# User input field
+# Entrée utilisateur
 user_input = st.chat_input("Posez votre question ici...")
 if user_input:
-    # Add the user input to chat history
+    # Ajouter le message utilisateur à l'historique
     add_message_to_history(HumanMessage(content=user_input))
-
-    # Display the user input
+    
+    # Afficher le message utilisateur
     with st.chat_message("Human"):
         st.markdown(user_input)
-
-    # Get AI response and measure the time
+    
+    # Obtenir la réponse de l'IA et mesurer le temps
     with st.chat_message("AI"):
         response = run_chain(user_input, context)
         st.write(response)
-
-    # Add the AI response to chat history
+    
+    # Ajouter la réponse de l'IA à l'historique
     add_message_to_history(AIMessage(content=response))
+
+
+    
+    
+    
+# Exemples de questions
+# st.markdown('<div class="QUESTIONS EXAMPLES">', unsafe_allow_html=True)
+# questions = [
+#     "Quel est le prix de la recharge ?",
+#     "Bonjour, je souhaite savoir quelles sont les meilleures applications ?",
+#     "Quel est le taux de satisfaction client parmi les utilisateurs français qui sont passés aux véhicules électriques ?",
+#     "Pouvez-vous fournir un bref historique des véhicules électriques de Peugeot ?",
+#     "Quels sont les principaux facteurs influençant l'autonomie d'un véhicule électrique ?",
+#     "Dites-moi quel est le prix pour recharger ma e-208, puis le temps de recharge sur une borne."
+# ]
+# for i, question in enumerate(questions, start=1):
+#     with st.expander(f"Question {i}"):
+#         st.write(question)
