@@ -90,10 +90,15 @@ def initialize_chain():
     system_prompt_path = Path("prompt/system_prompt.txt")
     system_prompt = system_prompt_path.read_text()
 
+    # prompt = ChatPromptTemplate.from_messages([
+    #     ("system", system_prompt),  # Le prompt système lu depuis le fichier
+    #     ("placeholder", "{chat_history}"),  # Historique des messages pour maintenir le contexte
+    #     ("human", "{input}")  # Le message de l'utilisateur
+    # ])
     prompt = ChatPromptTemplate.from_messages([
-        ("system", system_prompt),  # Le prompt système lu depuis le fichier
+        ("human", system_prompt),  # Le prompt système lu depuis le fichier
         ("placeholder", "{chat_history}"),  # Historique des messages pour maintenir le contexte
-        ("human", "{input}")  # Le message de l'utilisateur
+        ("system", "{input}")  # Le message de l'utilisateur
     ])
 
     # Obtenir le modèle choisi via la fonction choose_model()
