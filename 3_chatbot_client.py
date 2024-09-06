@@ -126,7 +126,8 @@ if user_input:
     with st.chat_message("Human"):
         st.markdown(user_input)
     
-    # Get AI response and measure the time
+    # Get AI response and display it
     with st.chat_message("AI"):
         response = run_chain(user_input, context, session_id="peugeot_expert")
-        st.write(response)
+        for msg in response:
+            st.write(msg)  # Print each token from the response
