@@ -78,26 +78,35 @@ def choose_model():
 
 
 def initialize_chain():
-    # Lire le prompt système depuis le fichier externe "prompt/system_prompt.txt"
     global system_prompt
     system_prompt_path = Path("prompt/system_prompt.txt")
     system_prompt = system_prompt_path.read_text()
-    # Définir le template du prompt avec les messages pour le système et l'utilisateur
+    
+    # Debugging: print the system prompt
+    print("System Prompt:", system_prompt)
+    
     prompt = ChatPromptTemplate.from_messages([
-        ("system", system_prompt),  # Le prompt système lu depuis le fichier
-        ("placeholder", "{chat_history}"),  # Historique des messages pour maintenir le contexte
-        ("human", "{input}")  # Le message de l'utilisateur
+        ("system", system_prompt),
+        ("placeholder", "{chat_history}"),
+        ("human", "{input}")
     ])
-    # Obtenir le modèle choisi via la fonction choose_model()
+    
     bedrock_llm = choose_model()
-    # Création de la chaîne en utilisant le modèle, le prompt et un output parser
+    
+    # Debugging: print chosen model info
+    print("Chosen Model:", bedrock_llm)
+    
     chain = prompt | bedrock_llm | StrOutputParser()
-    # Envelopper la chaîne avec l'historique des messages pour maintenir la continuité du dialogue
+    
+    # Debugging: print chat history
+    print("Chat History:", st.session_state.chat_history)
+    
     wrapped_chain = RunnableWithMessageHistory(
         chain,
-        lambda _: st.session_state.chat_history,  # Accepts one argument but doesn't use it
+        lambda _: st.session_state.chat_history,
         history_messages_key="chat_history",
     )
+    
     return wrapped_chain
 
 
