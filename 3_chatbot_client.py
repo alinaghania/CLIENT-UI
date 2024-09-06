@@ -68,22 +68,11 @@ def measure_time(func):
     
     return wrapper_measure_time
 # Fonction pour vérifier et ajouter les messages tout en respectant l'alternance
-# def add_message_to_history(message):
-#     history = st.session_state.chat_history
-#     if len(history.messages) == 0 or type(history.messages[-1]) != type(message):
-#         history.add_message(message)
-# # Fonction pour créer et initialiser la chaîne
-
 def add_message_to_history(message):
     history = st.session_state.chat_history
-    if len(history.messages) == 0:
+    if len(history.messages) == 0 or type(history.messages[-1]) != type(message):
         history.add_message(message)
-    else:
-        # Vérifier le rôle du dernier message et s'assurer qu'il est différent de celui du message à ajouter
-        last_message_role = type(history.messages[-1]).__name__.lower()
-        current_message_role = type(message).__name__.lower()
-        if last_message_role != current_message_role:
-            history.add_message(message)
+# Fonction pour créer et initialiser la chaîne
 
 
 
@@ -101,7 +90,6 @@ def initialize_chain():
     system_prompt_path = Path("prompt/system_prompt.txt")
     system_prompt = system_prompt_path.read_text()
 
-    # Définir le template du prompt avec les messages pour le système et l'utilisateur
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),  # Le prompt système lu depuis le fichier
         ("placeholder", "{chat_history}"),  # Historique des messages pour maintenir le contexte
