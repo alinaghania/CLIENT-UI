@@ -95,10 +95,11 @@ def initialize_chain():
     # Envelopper la chaîne avec l'historique des messages pour maintenir la continuité du dialogue
     wrapped_chain = RunnableWithMessageHistory(
         chain,
-        lambda: st.session_state.chat_history,
+        lambda _: st.session_state.chat_history,  # Accepts one argument but doesn't use it
         history_messages_key="chat_history",
     )
     return wrapped_chain
+
 
 
 
