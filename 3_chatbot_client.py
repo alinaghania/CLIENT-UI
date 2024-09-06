@@ -161,23 +161,16 @@ def initialize_chain():
 #     response = chain.stream({"input": input_text, "context": context})
 #     return response
 
-# Appliquer le décorateur pour mesurer le temps d'exécution
-# @measure_time
-# def run_chain(input_text, context):
-#     # Initialiser la chaîne avec le modèle et le prompt
-#     chain = initialize_chain()
-
-#     # Définir un session_id (tu peux générer une valeur unique pour chaque session)
-#     config = {"configurable": {"session_id": "unique_session_id"}}
-
-#     # Obtenir la réponse en mode streaming avec session_id dans la configuration
-#     response = chain.stream({"input": input_text, "context": context}, config)
-#     return response
-
 @measure_time
 def run_chain(input_text, context):
+    # Initialiser la chaîne avec le modèle et le prompt
     chain = initialize_chain()
-    response = chain.stream({"input": input_text, "context": context})
+
+    # Définir un session_id (tu peux générer une valeur unique pour chaque session)
+    config = {"configurable": {"session_id": "unique_session_id"}}
+
+    # Obtenir la réponse en mode streaming avec session_id dans la configuration
+    response = chain.stream({"input": input_text, "context": context}, config)
     return response
 
 
