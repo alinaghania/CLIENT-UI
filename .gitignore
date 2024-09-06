@@ -50,3 +50,15 @@ Thumbs.db
 
 .env
 .
+stella/new_env
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+!.elasticbeanstalk/*.local.yml
+!.elasticbeanstalk/*.private.yml
+!.elasticbeanstalk/*.secrets.yml
+
+new_env/
+

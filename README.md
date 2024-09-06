@@ -116,3 +116,16 @@
     Acceder à http://localhost:8000/docs si ca run all good!!
     
 
+## DEPLOY
+
+1. Create a ssh key
+    ```
+    ssh-keygen -t rsa -b 2048 -f ~/.ssh/my-ec2-key
+
+    ```
+2. ajouter cette clé publique (fichier my-ec2-key.pub) sur le serveur ou le service qui doit l'utiliser, un serveur EC2.
+Afficher la clé publique pour la copier
+
+    ```
+    cat ~/.ssh/my-ec2-key.pub
+    ```

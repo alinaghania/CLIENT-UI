@@ -115,6 +115,16 @@ def run_chain(input_text, context):
     response_stream = chain.stream({"input": input_text, "context": context})
     return "".join([chunk for chunk in response_stream])
 
+@measure_metrics
+def run_chain2(input_text, context):
+    chain, bedrock_llm = initialize_chain()
+
+    full_input = f"{context}\n{input_text}"
+    input_tokens = bedrock_llm.get_num_tokens(full_input)
+
+    response_stream = chain.stream({"input": input_text, "context": context})
+    return response_stream
+
 # Fonction principale pour gérer l'interaction et sauvegarder les métriques
 def process_input(input_text, context):
     response, time_metrics = run_chain(input_text, context)

@@ -11,3 +11,4 @@ requests
 langchain-core
 langchain
 uvicorn[standard]
+requests
