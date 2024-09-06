@@ -68,11 +68,25 @@ def measure_time(func):
     
     return wrapper_measure_time
 # Fonction pour vérifier et ajouter les messages tout en respectant l'alternance
+# def add_message_to_history(message):
+#     history = st.session_state.chat_history
+#     if len(history.messages) == 0 or type(history.messages[-1]) != type(message):
+#         history.add_message(message)
+# # Fonction pour créer et initialiser la chaîne
+
+
 def add_message_to_history(message):
     history = st.session_state.chat_history
-    if len(history.messages) == 0 or type(history.messages[-1]) != type(message):
+    if len(history.messages) == 0:
         history.add_message(message)
-# Fonction pour créer et initialiser la chaîne
+    else:
+        # Assurer l'alternance des rôles
+        last_message_role = type(history.messages[-1]).__name__.lower()
+        current_message_role = type(message).__name__.lower()
+        if last_message_role != current_message_role:
+            history.add_message(message)
+        else:
+            st.write(f"Message non ajouté: le rôle '{current_message_role}' est identique à celui du dernier message.")
 
 
 
@@ -84,33 +98,57 @@ def choose_model():
 
 
 
+# def initialize_chain():
+#     # Lire le prompt système depuis le fichier externe "prompt/system_prompt.txt"
+#     global system_prompt
+#     system_prompt_path = Path("prompt/system_prompt.txt")
+#     system_prompt = system_prompt_path.read_text()
+
+#     prompt = ChatPromptTemplate.from_messages([
+#         ("system", system_prompt),  # Le prompt système lu depuis le fichier
+#         ("placeholder", "{chat_history}"),  # Historique des messages pour maintenir le contexte
+#         ("human", "{input}")  # Le message de l'utilisateur
+#     ])
+    
+
+#     # Obtenir le modèle choisi via la fonction choose_model()
+#     bedrock_llm = choose_model()
+
+#     # Création de la chaîne en utilisant le modèle, le prompt et un output parser
+#     chain = prompt | bedrock_llm | StrOutputParser()
+
+#     # Envelopper la chaîne avec l'historique des messages pour maintenir la continuité du dialogue
+#     wrapped_chain = RunnableWithMessageHistory(
+#         chain,
+#         lambda _: st.session_state.chat_history,  # Ajout du paramètre "_"
+#         history_messages_key="chat_history",
+#     )
+
+#     return wrapped_chain
+
 def initialize_chain():
-    # Lire le prompt système depuis le fichier externe "prompt/system_prompt.txt"
     global system_prompt
     system_prompt_path = Path("prompt/system_prompt.txt")
     system_prompt = system_prompt_path.read_text()
 
     prompt = ChatPromptTemplate.from_messages([
-        ("system", system_prompt),  # Le prompt système lu depuis le fichier
-        ("placeholder", "{chat_history}"),  # Historique des messages pour maintenir le contexte
-        ("human", "{input}")  # Le message de l'utilisateur
+        ("system", system_prompt),
+        ("placeholder", "{chat_history}"),
+        ("human", "{input}")
     ])
-    
 
-    # Obtenir le modèle choisi via la fonction choose_model()
     bedrock_llm = choose_model()
 
-    # Création de la chaîne en utilisant le modèle, le prompt et un output parser
     chain = prompt | bedrock_llm | StrOutputParser()
 
-    # Envelopper la chaîne avec l'historique des messages pour maintenir la continuité du dialogue
     wrapped_chain = RunnableWithMessageHistory(
         chain,
-        lambda _: st.session_state.chat_history,  # Ajout du paramètre "_"
+        lambda _: st.session_state.chat_history,
         history_messages_key="chat_history",
     )
 
     return wrapped_chain
+
 
 
 
@@ -124,16 +162,22 @@ def initialize_chain():
 #     return response
 
 # Appliquer le décorateur pour mesurer le temps d'exécution
+# @measure_time
+# def run_chain(input_text, context):
+#     # Initialiser la chaîne avec le modèle et le prompt
+#     chain = initialize_chain()
+
+#     # Définir un session_id (tu peux générer une valeur unique pour chaque session)
+#     config = {"configurable": {"session_id": "unique_session_id"}}
+
+#     # Obtenir la réponse en mode streaming avec session_id dans la configuration
+#     response = chain.stream({"input": input_text, "context": context}, config)
+#     return response
+
 @measure_time
 def run_chain(input_text, context):
-    # Initialiser la chaîne avec le modèle et le prompt
     chain = initialize_chain()
-
-    # Définir un session_id (tu peux générer une valeur unique pour chaque session)
-    config = {"configurable": {"session_id": "unique_session_id"}}
-
-    # Obtenir la réponse en mode streaming avec session_id dans la configuration
-    response = chain.stream({"input": input_text, "context": context}, config)
+    response = chain.stream({"input": input_text, "context": context})
     return response
 
 
