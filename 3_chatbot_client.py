@@ -39,6 +39,9 @@ session = boto3.Session(
 )
 st.write(st.secrets)
 
+os.environ["AWS_DEFAULT_REGION"] = st.secrets["region_name"]
+os.environ["AWS_ACCESS_KEY_ID"] = st.secrets["aws_access_key_id"]
+os.environ["AWS_SECRET_ACCESS_KEY"] = st.secrets["aws_secret_access_key"]
     
 # Fonction pour mesurer le temps d'exécution pendant le streaming
 def measure_time(func):
