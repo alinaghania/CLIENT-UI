@@ -9,16 +9,27 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_aws import ChatBedrock
 from pathlib import Path
 from langchain_core.messages import AIMessage, HumanMessage
+import boto3
+import os
+
 # Configuration de la page Streamlit
 st.set_page_config(page_title="Peugeot Expert")
 st.title("EV - Peugeot Expert")
 st.write(f"<span style='color:red;font-weight:bold'> Expert en véhicules électriques Peugeot </span>", unsafe_allow_html=True)
+
 # Session state pour l'historique des chats
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = InMemoryChatMessageHistory()
-    
-import boto3
-import os
+else:
+    # Ensure it's the correct type
+    if not isinstance(st.session_state.chat_history, InMemoryChatMessageHistory):
+        st.session_state.chat_history = InMemoryChatMessageHistory()
+
+def load_css(file_path):
+    with open(file_path) as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+# Charger le CSS à partir du fichier styles.css
+load_css("style.css")
 
 # Setup your Bedrock credentials from Streamlit secrets
 session = boto3.Session(
@@ -30,13 +41,7 @@ session = boto3.Session(
 os.environ["AWS_DEFAULT_REGION"] = st.secrets["region_name"]
 os.environ["AWS_ACCESS_KEY_ID"] = st.secrets["aws_access_key_id"]
 os.environ["AWS_SECRET_ACCESS_KEY"] = st.secrets["aws_secret_access_key"]
-    
-def load_css(file_path):
-    with open(file_path) as f:
-        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-# Charger le CSS à partir du fichier styles.css
-load_css("style.css")
-    
+
 # Fonction pour mesurer le temps d'exécution pendant le streaming
 def measure_time(func):
     @functools.wraps(func)
@@ -50,17 +55,18 @@ def measure_time(func):
             for token in func(*args, **kwargs):
                 if first_token_time is None:
                     first_token_time = datetime.now()
-                    # st.write(f"<span style='color:red;font-weight:bold'>First token received in {(first_token_time - start_time).total_seconds():.2f} seconds.</span>", unsafe_allow_html=True)
                 yield token
             end_time = datetime.now()
             total_elapsed = (end_time - start_time).total_seconds()
             streaming_elapsed = (end_time - first_token_time).total_seconds() if first_token_time else 0
+            # Optionally output time metrics
             # st.write(f" Total response time: {total_elapsed:.2f} seconds.")
             # st.write(f"Streaming time: {streaming_elapsed:.2f} seconds.")
         
         return streaming_wrapper()
     
     return wrapper_measure_time
+
 def add_message_to_history(message):
     history = st.session_state.chat_history
     
@@ -77,15 +83,11 @@ def add_message_to_history(message):
     elif isinstance(history.messages[-1], HumanMessage) and role == "assistant":
         history.add_message(message)
 
-        
-
 # Fonction pour choisir le modèle sur Bedrock
 def choose_model():
     # Choix du modèle Claude 3.5 Sonnet depuis Amazon Bedrock
     bedrock_llm = ChatBedrock(model_id="anthropic.claude-3-5-sonnet-20240620-v1:0")
     return bedrock_llm
-
-
 
 def initialize_chain():
     global system_prompt
@@ -121,11 +123,14 @@ def initialize_chain():
     
     return wrapped_chain
 
-
 def get_chat_history():
     # Retrieve chat history
     history = st.session_state.get('chat_history', InMemoryChatMessageHistory())
     
+    if isinstance(history, list):
+        print("Error: chat_history is unexpectedly a list.")
+        return []
+
     # Convert the history to a list of dictionaries for debugging
     history_list = []
     
@@ -152,18 +157,12 @@ def get_chat_history():
     
     return history_list
 
-
-
-
-
-
-
-
-
-# Appliquer le décorateur pour mesurer le temps d'exécution
 @measure_time
 def run_chain(input_text, context, session_id):
     chain = initialize_chain()
+    if not isinstance(chain, RunnableWithMessageHistory):
+        raise ValueError("Initialized chain is not of type RunnableWithMessageHistory.")
+    
     config = {
         "configurable": {
             "session_id": session_id
@@ -171,13 +170,6 @@ def run_chain(input_text, context, session_id):
     }
     response = chain.stream({"input": input_text, "context": context}, config)
     return response
-# # Charger le contexte du document
-# context = Path("parsed_data/peugeot_data.txt").read_text()
-# Charger le contexte du document
-
-
-
-
 
 context = None
 
@@ -187,10 +179,6 @@ def load_context():
         context = Path("parsed_data/peugeot_data.txt").read_text()
 load_context()
 
-
-
-
-
 # Afficher l'historique des messages
 for message in st.session_state.chat_history.messages:
     if isinstance(message, AIMessage):
@@ -199,6 +187,7 @@ for message in st.session_state.chat_history.messages:
     elif isinstance(message, HumanMessage):
         with st.chat_message("Human"):
             st.write(message.content)
+
 # Entrée utilisateur
 user_input = st.chat_input("Posez votre question ici...")
 if user_input:
@@ -216,5 +205,3 @@ if user_input:
     
     # Ajouter la réponse de l'IA à l'historique
     add_message_to_history(AIMessage(content=response))
-    
-    
