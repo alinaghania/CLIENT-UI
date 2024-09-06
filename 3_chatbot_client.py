@@ -21,7 +21,6 @@ st.write(f"<span style='color:red;font-weight:bold'> Expert en véhicules élect
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = InMemoryChatMessageHistory()
 else:
-    # Ensure it's the correct type
     if not isinstance(st.session_state.chat_history, InMemoryChatMessageHistory):
         st.session_state.chat_history = InMemoryChatMessageHistory()
 
@@ -48,10 +47,9 @@ def measure_time(func):
     def wrapper_measure_time(*args, **kwargs):
         start_time = datetime.now()
         first_token_time = None
-        result = None
         
         def streaming_wrapper():
-            nonlocal first_token_time, result
+            nonlocal first_token_time
             for token in func(*args, **kwargs):
                 if first_token_time is None:
                     first_token_time = datetime.now()
@@ -69,6 +67,10 @@ def measure_time(func):
 
 def add_message_to_history(message):
     history = st.session_state.chat_history
+    
+    if not isinstance(history, InMemoryChatMessageHistory):
+        print("Error: chat_history is not of type InMemoryChatMessageHistory.")
+        return
     
     if isinstance(message, HumanMessage):
         role = "user"
@@ -127,8 +129,9 @@ def get_chat_history():
     # Retrieve chat history
     history = st.session_state.get('chat_history', InMemoryChatMessageHistory())
     
-    if isinstance(history, list):
-        print("Error: chat_history is unexpectedly a list.")
+    # Check if history is an instance of InMemoryChatMessageHistory
+    if not isinstance(history, InMemoryChatMessageHistory):
+        print("Error: chat_history is unexpectedly of type", type(history))
         return []
 
     # Convert the history to a list of dictionaries for debugging
@@ -180,13 +183,18 @@ def load_context():
 load_context()
 
 # Afficher l'historique des messages
-for message in st.session_state.chat_history.messages:
-    if isinstance(message, AIMessage):
-        with st.chat_message("AI"):
-            st.write(message.content)
-    elif isinstance(message, HumanMessage):
-        with st.chat_message("Human"):
-            st.write(message.content)
+history = st.session_state.get('chat_history', InMemoryChatMessageHistory())
+
+if isinstance(history, InMemoryChatMessageHistory):
+    for message in history.messages:
+        if isinstance(message, AIMessage):
+            with st.chat_message("AI"):
+                st.write(message.content)
+        elif isinstance(message, HumanMessage):
+            with st.chat_message("Human"):
+                st.write(message.content)
+else:
+    print("Error: chat_history is not an instance of InMemoryChatMessageHistory.")
 
 # Entrée utilisateur
 user_input = st.chat_input("Posez votre question ici...")
