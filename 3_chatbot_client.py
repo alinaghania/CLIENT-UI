@@ -14,7 +14,7 @@ st.set_page_config(page_title="Peugeot Expert")
 st.title("EV - Peugeot Expert")
 st.write(f"<span style='color:red;font-weight:bold'> Expert en véhicules électriques Peugeot </span>", unsafe_allow_html=True)
 
-
+import boto3  
 
 # Session state pour l'historique des chats
 if "chat_history" not in st.session_state:
@@ -28,6 +28,12 @@ def load_css(file_path):
 # Charger le CSS à partir du fichier styles.css
 load_css("style.css")
 
+# Configuration AWS avec les secrets de Streamlit
+session = boto3.Session(
+    aws_access_key_id=st.secrets["aws_access_key_id"],
+    aws_secret_access_key=st.secrets["aws_secret_access_key"],
+    region_name=st.secrets["region_name"]
+)
     
 # Fonction pour mesurer le temps d'exécution pendant le streaming
 def measure_time(func):

@@ -62,3 +62,4 @@ stella/new_env
 
 new_env/
 
+stella/.streamlit/secrets.toml
