@@ -93,7 +93,6 @@ def initialize_chain():
     
     return chain
  
-@measure_time
 def run_chain(input_text, context, session_id):
     chain = initialize_chain()
     if chain is None:
