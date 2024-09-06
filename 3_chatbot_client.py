@@ -5,7 +5,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_aws import ChatBedrock
 from pathlib import Path
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 import boto3
 import os
@@ -49,6 +49,7 @@ def choose_model():
     return bedrock_llm
 
 # Fonction d'initialisation de la chaîne
+# Fonction d'initialisation de la chaîne
 def initialize_chain():
     # Lire le prompt système depuis le fichier externe "prompt/system_prompt.txt"
     system_prompt_path = Path("prompt/system_prompt.txt")
@@ -56,9 +57,9 @@ def initialize_chain():
 
     # Définir le template du prompt avec les messages pour le système et l'utilisateur
     prompt = ChatPromptTemplate.from_messages([
-        ("system", system_prompt),  # Le prompt système lu depuis le fichier
-        ("chat_history", "{chat_history}"),  # Historique des messages pour maintenir le contexte
-        ("human", "{input}")  # Le message de l'utilisateur
+        SystemMessage(content=system_prompt),  # Le prompt système lu depuis le fichier
+        MessagesPlaceholder(variable_name="chat_history"),  # Historique des messages pour maintenir le contexte
+        HumanMessage(content="{input}")  # Le message de l'utilisateur
     ])
 
     # Obtenir le modèle choisi via la fonction choose_model()
