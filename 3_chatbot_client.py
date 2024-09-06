@@ -129,5 +129,5 @@ if user_input:
     # Get AI response and display it
     with st.chat_message("AI"):
         response = run_chain(user_input, context, session_id="peugeot_expert")
-        for msg in response:
-            st.write(msg)  # Print each token from the response
+        st.write(response)
+        
