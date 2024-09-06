@@ -105,10 +105,14 @@ def initialize_chain():
 
 # Appliquer le décorateur pour mesurer le temps d'exécution
 @measure_time
-def run_chain(input_text, context):
+def run_chain(input_text, context, session_id):
     chain = initialize_chain()
-    configure = {"input": input_text, "context": context}
-    response = chain.stream({"input": input_text, "context": context}, configure)
+    config = {
+        "configurable": {
+            "session_id": session_id
+        }
+    }
+    response = chain.stream({"input": input_text, "context": context}, config)
     return response
 # # Charger le contexte du document
 # context = Path("parsed_data/peugeot_data.txt").read_text()
@@ -150,7 +154,7 @@ if user_input:
     
     # Obtenir la réponse de l'IA et mesurer le temps
     with st.chat_message("AI"):
-        response = run_chain(user_input, context)
+        response = run_chain(user_input, context, session_id="peugeot_expert")
         st.write(response)
     
     # Ajouter la réponse de l'IA à l'historique
