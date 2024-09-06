@@ -48,8 +48,8 @@ def initialize_chain():
     
     bedrock_llm = choose_model()
 
-    # Initialize memory
-    memory = ConversationBufferMemory(return_messages=True)
+    # Initialize memory, set memory key to match the prompt variable
+    memory = ConversationBufferMemory(return_messages=True, memory_key="context")
     
     # Create ConversationChain with memory
     chain = ConversationChain(llm=bedrock_llm, memory=memory, prompt=prompt)
