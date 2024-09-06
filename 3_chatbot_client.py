@@ -53,7 +53,6 @@ def choose_model():
     return bedrock_llm
 
 # Fonction d'initialisation de la chaîne
-# Fonction d'initialisation de la chaîne
 def initialize_chain():
     # Lire le prompt système depuis le fichier externe "prompt/system_prompt.txt"
     system_prompt_path = Path("prompt/system_prompt.txt")
@@ -92,11 +91,17 @@ def run_chain(input_text, context, session_id):
             "session_id": session_id
         }
     }
-    
-    # Stream and output the response directly
-    response = chain.stream({"input": [input_text], "context": context}, config)
-    return response
 
+    # Create an empty container to display the response progressively
+    response_container = st.empty()
+    response_text = ""
+
+    # Stream the response and display tokens in real-time
+    for token in chain.stream({"input": [input_text], "context": context}, config):
+        response_text += token
+        response_container.markdown(response_text)  # Update the response incrementally
+
+    return response_text
 
 context = None
 # Charger le contexte depuis un fichier
@@ -115,5 +120,4 @@ if user_input:
     
     # Obtenir la réponse de l'IA et mesurer le temps
     with st.chat_message("AI"):
-        response = run_chain(user_input, context, session_id="peugeot_expert")
-        st.write(response)
+        run_chain(user_input, context, session_id="peugeot_expert")
