@@ -115,17 +115,18 @@ def run_chain(input_text, context, session_id):
     
     response = chain.stream({"input": [full_input], "context": context}, config)  # Wrap input_text in a list
     return response
- 
- 
-context = None
+
+context = Path("parsed_data/peugeot_data.txt").read_text()
+
+
  
  
 @st.cache_data
 def load_context():
-    global context
-    if context is None:
-        context = Path("parsed_data/peugeot_data.txt").read_text()
-load_context()
+    return Path("parsed_data/peugeot_data.txt").read_text()
+
+# Chargement du contexte avec mise en cache
+context = load_context()
 
 # Fonction pour ajouter un message à l'historique
 def add_message_to_history(message):
@@ -155,7 +156,7 @@ if user_input:
         # Création d'un conteneur Streamlit pour afficher la réponse de l'IA au fur et à mesure
         response_placeholder = st.empty()  # Crée un conteneur vide
         response_text = ""  # Chaîne pour stocker la réponse finale
-        context = load_context()
+        
 
         for token in run_chain(user_input, context, session_id="peugeot_expert"):
             response_text += token  # Ajouter chaque token à la réponse
