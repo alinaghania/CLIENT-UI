@@ -126,16 +126,19 @@ def run_chain(input_text, context, session_id):
     chat_history_messages = [str(message.content) for message in st.session_state.chat_history.messages]
 
     
-    # # Ajouter l'historique des messages au contexte
+    # Ajouter l'historique des messages au contexte
     # full_input = f"{context}\n{' '.join(chat_history_messages)}\n{input_text}"
-    
-    full_input = {
-        "input": input_text,
-        "chat_history": " ".join(chat_history_messages)
+    inputs = {
+        "chat_history": " ".join(chat_history_messages) ,
+        "input": input_text
     }
     
+    
+    
     # response = chain.stream({"input": [full_input], "context": context}, config)  # Wrap input_text in a list
-    response = chain.stream(full_input, config)
+
+    response = chain.stream(inputs, config)
+
     
     return response
 
