@@ -68,6 +68,7 @@ def choose_model():
     bedrock_llm = ChatBedrock(model_id="anthropic.claude-3-5-sonnet-20240620-v1:0")
     return bedrock_llm
  
+@st.cache_resource
 def initialize_chain():
     global system_prompt
     system_prompt_path = Path("prompt/system_prompt.txt")
