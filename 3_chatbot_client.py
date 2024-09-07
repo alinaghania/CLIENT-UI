@@ -62,6 +62,16 @@ def measure_time(func):
     
     return wrapper_measure_time
  
+@st.cache_data
+def load_context():
+    return Path("parsed_data/peugeot_data.txt").read_text()
+
+# Chargement du contexte avec mise en cache
+context = load_context()
+ 
+ 
+ 
+ 
 @st.cache_resource
 def choose_model():
     # Choix du modèle Claude 3.5 Sonnet depuis Amazon Bedrock
@@ -73,6 +83,10 @@ def initialize_chain():
     global system_prompt
     system_prompt_path = Path("prompt/system_prompt.txt")
     system_prompt = system_prompt_path.read_text()
+    
+    # Charger le contexte dans le prompt système
+    context = load_context()
+    system_prompt = system_prompt.replace("{context}", context)
     
     # Define the prompt correctly
     prompt = ChatPromptTemplate.from_messages([
@@ -112,23 +126,20 @@ def run_chain(input_text, context, session_id):
     chat_history_messages = [str(message.content) for message in st.session_state.chat_history.messages]
 
     
-    # Ajouter l'historique des messages au contexte
-    full_input = f"{context}\n{' '.join(chat_history_messages)}\n{input_text}"
+    # # Ajouter l'historique des messages au contexte
+    # full_input = f"{context}\n{' '.join(chat_history_messages)}\n{input_text}"
     
-    response = chain.stream({"input": [full_input], "context": context}, config)  # Wrap input_text in a list
+    full_input = {
+        "input": input_text,
+        "chat_history": " ".join(chat_history_messages)
+    }
+    
+    # response = chain.stream({"input": [full_input], "context": context}, config)  # Wrap input_text in a list
+    response = chain.stream(full_input, config)
+    
     return response
 
-context = Path("parsed_data/peugeot_data.txt").read_text()
 
-
- 
- 
-@st.cache_data
-def load_context():
-    return Path("parsed_data/peugeot_data.txt").read_text()
-
-# Chargement du contexte avec mise en cache
-context = load_context()
 
 # Fonction pour ajouter un message à l'historique
 def add_message_to_history(message):
