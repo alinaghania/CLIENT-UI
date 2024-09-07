@@ -77,7 +77,8 @@ def initialize_chain():
     # Define the prompt correctly
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
-        ("placeholder", "{input}")
+        ("placeholder", "{chat_history}"),
+        ("human", "{input}"),
     ])
     
     bedrock_llm = choose_model()
