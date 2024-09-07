@@ -91,7 +91,7 @@ def initialize_chain():
     # Define the prompt correctly
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
-        ("placeholder", "{chat_history}"),
+        ("placeholder", "{input}"),
         ("human", "{input}"),
     ])
     
