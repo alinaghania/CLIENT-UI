@@ -91,7 +91,7 @@ def initialize_chain():
     # Define the prompt correctly
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
-        ("placeholder", "{input}"),
+        ("placeholder", "{chat_history}"),
         ("human", "{input}"),
     ])
     
@@ -127,18 +127,11 @@ def run_chain(input_text, context, session_id):
 
     
     # Ajouter l'historique des messages au contexte
-    # full_input = f"{context}\n{' '.join(chat_history_messages)}\n{input_text}"
-    inputs = {
-        "chat_history": " ".join(chat_history_messages) ,
-        "input": input_text
-    }
+    full_input = f"{context}\n{' '.join(chat_history_messages)}\n{input_text}"
     
     
     
-    # response = chain.stream({"input": [full_input], "context": context}, config)  # Wrap input_text in a list
-
-    response = chain.stream(inputs, config)
-
+    response = chain.stream({"input": [full_input], "context": context}, config)  # Wrap input_text in a list
     
     return response
 
