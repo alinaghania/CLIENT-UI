@@ -155,6 +155,7 @@ if user_input:
         # Création d'un conteneur Streamlit pour afficher la réponse de l'IA au fur et à mesure
         response_placeholder = st.empty()  # Crée un conteneur vide
         response_text = ""  # Chaîne pour stocker la réponse finale
+        context = load_context()
 
         for token in run_chain(user_input, context, session_id="peugeot_expert"):
             response_text += token  # Ajouter chaque token à la réponse
