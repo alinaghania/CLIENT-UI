@@ -1,158 +1,246 @@
-import functools
-from datetime import datetime
-import pandas as pd
-import streamlit as st
-from langchain_core.messages import AIMessage, HumanMessage
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_aws import ChatBedrock
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables.history import RunnableWithMessageHistory
+import contextvars
 from pathlib import Path
 
-# Fonction pour mesurer le temps d'exécution et les tokens pendant le streaming
-def measure_metrics(func):
-    @functools.wraps(func)
-    def wrapper_measure_metrics(*args, **kwargs):
-        start_time = datetime.now()
-        first_token_time = None
-
-        def streaming_wrapper():
-            nonlocal first_token_time
-            for token in func(*args, **kwargs):
-                if first_token_time is None:
-                    first_token_time = datetime.now()
-                yield token
-
-        result = "".join(streaming_wrapper())
-
-        end_time = datetime.now()
-        total_elapsed = (end_time - start_time).total_seconds()
-        first_token_time_elapsed = (first_token_time - start_time).total_seconds() if first_token_time else None
-        streaming_elapsed = (end_time - first_token_time).total_seconds() if first_token_time else None
-
-        time_metrics = {
-            "First Token Time (s)": first_token_time_elapsed,
-            "Total Elapsed Time (s)": total_elapsed,
-            "Streaming Elapsed Time (s)": streaming_elapsed
-        }
-
-        return result, time_metrics
-
-    return wrapper_measure_metrics
-
-# Fonction pour vérifier et ajouter les messages tout en respectant l'alternance
-def add_message_to_history(message):
-    history = st.session_state.chat_history
-    if len(history.messages) == 0 or type(history.messages[-1]) != type(message):
-        history.add_message(message)
-
-# Fonction pour créer et initialiser la chaîne
-# def initialize_chain():
-#     prompt = ChatPromptTemplate.from_messages([
-#         ("system", "You are Bob, a Peugeot expert. Answer the following questions as best you can from this context <context>{context}</context>."),
-#         ("placeholder", "{chat_history}"),
-#         ("human", "{input}"),
-#     ])
-
-#     bedrock_llm = ChatBedrock(model_id="anthropic.claude-3-5-sonnet-20240620-v1:0")
-
-#     chain = prompt | bedrock_llm | StrOutputParser()
-
-#     wrapped_chain = RunnableWithMessageHistory(
-#         chain,
-#         lambda: st.session_state.chat_history,
-#         history_messages_key="chat_history",
-#     )
-
-#     return wrapped_chain, bedrock_llm
+import boto3
+from botocore.exceptions import ClientError
+from langchain.chains import LLMChain
+from langchain.memory import ConversationBufferMemory
+from langchain_aws import ChatBedrock
+from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
+from langchain_core.prompts import (
+    ChatPromptTemplate,
+    HumanMessagePromptTemplate,
+    SystemMessagePromptTemplate,
+)
+from langchain_core.pydantic_v1 import BaseModel, Field
+import streamlit as st
+from langchain_core.pydantic_v1 import BaseModel, Field, create_model
+from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
+from pydantic import BaseModel
+from typing import List 
 
 
-# Fonction pour choisir le modèle sur Bedrock
+
+# Set up a context variable to manage chat history
+chat_history_var = contextvars.ContextVar("chat_history", default=[])
+
+# Function to choose the Claude model from Bedrock
+@st.cache_resource
 def choose_model():
-    # Choix du modèle Claude 3.5 Sonnet depuis Amazon Bedrock
-    bedrock_llm = ChatBedrock(model_id="anthropic.claude-3-5-sonnet-20240620-v1:0")
-    return bedrock_llm
+    return ChatBedrock(model_id="anthropic.claude-3-5-sonnet-20240620-v1:0")
 
+# Function to manage memory for conversation
+def get_memory():
+    return ConversationBufferMemory(return_messages=True)
 
-
-# Fonction pour initialiser la chaîne en lisant le prompt depuis un fichier
-def initialize_chain():
-    # Lire le prompt système depuis le fichier externe "prompt/system_prompt.txt"
-    system_prompt_path = Path("prompt/system_prompt.txt")
-    system_prompt = system_prompt_path.read_text()
-
-    # Définir le template du prompt avec les messages pour le système et l'utilisateur
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", system_prompt),  # Le prompt système lu depuis le fichier
-        ("placeholder", "{chat_history}"),  # Historique des messages pour maintenir le contexte
-        ("human", "{input}")  # Le message de l'utilisateur
-    ])
-
-    # Obtenir le modèle choisi via la fonction choose_model()
-    bedrock_llm = choose_model()
-
-    # Création de la chaîne en utilisant le modèle, le prompt et un output parser
-    chain = prompt | bedrock_llm | StrOutputParser()
-
-    # Envelopper la chaîne avec l'historique des messages pour maintenir la continuité du dialogue
-    wrapped_chain = RunnableWithMessageHistory(
-        chain,
-        lambda: st.session_state.chat_history,
-        history_messages_key="chat_history",
+@st.cache_resource
+def check_question_type(user_input,history):
+    class Relevant(BaseModel):
+        relevant_yes_no: str = Field(description="yes or no")
+        
+    output_parser = JsonOutputParser(pydantic_object=Relevant)
+ 
+    template = ChatPromptTemplate(
+        messages=[
+            SystemMessagePromptTemplate.from_template("Based on the user query and the history of the question, determine if the question needs to be answered by an expert in vehicle electric and Peugeot. If the question is related to cars, electric cars, vehicles, or Peugeot, answer yes. If the question is a general greeting, a thank you, or a question that doesn't require a specialist in cars, answer no. Our commercial team will handle those."),
+            HumanMessagePromptTemplate.from_template("User query: {user_query}, history: {history},and here your knowledges:<context> {format_instructions}"),
+        ],
+        input_variables=["user_query", "history"],
+        partial_variables={"format_instructions": output_parser.get_format_instructions()}
     )
 
-    return wrapped_chain, bedrock_llm
+    model = choose_model()
+    chain = template | model | output_parser
+
+    try:
+        result = chain.invoke({
+            "user_query": user_input,
+            "history": history,
+        })
+        print(f"AI CHOICE =>  {result}")
+        return result["relevant_yes_no"] == "yes"
+    except Exception as e:
+        print(f"Exception: {e}")
+        
+        return False
 
 
-# Appliquer le décorateur pour mesurer les métriques
-@measure_metrics
-def run_chain(input_text, context):
-    chain, bedrock_llm = initialize_chain()
 
-    full_input = f"{context}\n{input_text}"
-    input_tokens = bedrock_llm.get_num_tokens(full_input)
-
-    response_stream = chain.stream({"input": input_text, "context": context})
-    return "".join([chunk for chunk in response_stream])
-
-@measure_metrics
-def run_chain2(input_text, context):
-    chain, bedrock_llm = initialize_chain()
-
-    full_input = f"{context}\n{input_text}"
-    input_tokens = bedrock_llm.get_num_tokens(full_input)
-
-    response_stream = chain.stream({"input": input_text, "context": context})
-    return response_stream
-
-# Fonction principale pour gérer l'interaction et sauvegarder les métriques
-def process_input(input_text, context):
-    response, time_metrics = run_chain(input_text, context)
+class ResponseModel(BaseModel):
+    response: str = Field(description="The main response from the LLM")
+    key_words: List[str] = Field(description="3-4 short keyword questions based on conversation history")
     
-    chain, bedrock_llm = initialize_chain()
-    output_tokens = bedrock_llm.get_num_tokens(response)
-    input_tokens = bedrock_llm.get_num_tokens(f"{context}\n{input_text}")
-    
-    input_cost = (input_tokens / 1_000_000) * 3
-    output_cost = (output_tokens / 1_000_000) * 15
-    total_cost = input_cost + output_cost
-    
-    metrics = {
-        "User Question": input_text,
-        "AI Response": response,
-        "Input Tokens": input_tokens,
-        "Output Tokens": output_tokens,
-        "Input Cost ($)": input_cost,
-        "Output Cost ($)": output_cost,
-        "Total Cost ($)": total_cost,
-        **time_metrics
-    }
-    
-    st.session_state.metrics.append(metrics)
-    
-    return response
+output_parser = JsonOutputParser(pydantic_object=ResponseModel)
 
-# Fonction pour sauvegarder les résultats sous forme de CSV
-def save_results_to_csv():
-    df = pd.DataFrame(st.session_state.metrics)
-    return df.to_csv(index=False).encode("utf-8")
+    
+# Function to initialize the chain with system prompt, context, and memory
+@st.cache_resource
+def initialize_chain_experts_ev(history,user_input):
+    """
+    Initialize the conversation chain with system prompt, context, message history, and user input.
+    """
+    current_directory = Path(__file__).resolve().parent  # Adjust based on your directory structure
+
+    system_prompt_path = current_directory / "prompt/system_prompt_experts_ev.txt"
+    context_path = current_directory / "parsed_data/peugeot_data.txt"
+
+    # print(f"System prompt path: {system_prompt_path}")  # <-- Print the path to system_prompt.txt
+    # print(f"Context path: {context_path}")  # <-- Print the path to peugeot_data.txt
+
+    if not system_prompt_path.exists():
+        raise FileNotFoundError("System prompt file not found.")
+    if not context_path.exists():
+        raise FileNotFoundError("Context file not found.")
+
+    # Read system prompt and context from files
+    system_prompt = system_prompt_path.read_text()
+    context = context_path.read_text()
+
+    # Replace placeholder {context} in system prompt with actual context content
+    formatted_system_prompt = system_prompt
+    
+    # prompt = ChatPromptTemplate(
+    #     messages=[
+    #         SystemMessagePromptTemplate.from_template(formatted_system_prompt),
+    #         HumanMessagePromptTemplate.from_template("Vous êtes EV Genius, un expert en véhicules électriques pour Peugeot et un ami , voici l'Historique des échanges précédents :\n{history}\n\n et la Nouvelle requête de l'utilisateur :\n{user_input} répondre de maniere concise et courte et finis avec une question, si tu n'as pas la réponse, pose une question pour affiner la demande comme une conversation normale et quand tu ne sais pas dit le ou sinon renvoie vers le site de Peugeot"),
+    #     ],
+    #     input_variables=["user_input", "history", "context"],
+    # )
+    prompt = ChatPromptTemplate(
+        messages=[
+            SystemMessagePromptTemplate.from_template(system_prompt),
+            HumanMessagePromptTemplate.from_template(
+                # """"  
+                #     Vous êtes EV Genius, un expert en véhicules électriques pour Peugeot et un conseiller amical. Engagez-vous dans une conversation en privilégiant un véritable échange plutôt qu’un simple dialogue de questions et réponses.
+                #     - Si l'utilisateur commence par 'hello' ou 'bonjour', répondez simplement par un bonjour et présentez-vous en tant qu'expert en véhicules électriques. Demandez comment vous pouvez les aider aujourd'hui de manière amicale.
+                #     - En tant que commercial pour Peugeot, mettez subtilement en avant les avantages des véhicules électriques de Peugeot et les services associés, en adaptant la conversation aux besoins spécifiques de l'utilisateur, sans être trop orienté vers la vente.
+                #     - Soulignez que Peugeot propose une large gamme de véhicules avec des services associés qui peuvent répondre aux besoins spécifiques du client.
+                #     - Finissez toujours par une question courte pour relancer la conversation, en fonction de la réponse précédente, comme dans une conversation normale, tout en gardant à l’esprit que vous êtes un commercial, donc la réponse de la question doit toujours finir par une question pour relancer la conversation.
+
+
+                #     Voici l'historique des échanges précédents pour contexte :
+                #     {history}
+                #     Nouvelle requête de l'utilisateur :
+                #     {user_input}
+                #     Répondez directement et de manière concise à la requête de l'utilisateur sans répéter la question. Ensuite, proposez 2 à 3 questions-clés courtes ou mots-clés (de préférence 2 mots-clés, mais si pertient 3) basés sur l'historique de la conversation pour relancer le dialogue.
+                #     Lorsque lu'utilisateur clique sur l'un des mots-clés ou questions, répondez de manière concise et précise, et cela doit être fluide et naturel, en fonction de la réponse précédente.
+                #     Pour des sujets généraux comme 'hello' ou 'comment ça va ?', proposez des mots-clés. Pour des sujets plus spécifiques, suggérez des questions courtes pour faire avancer la conversation.
+                #     Formatez votre réponse selon ces instructions : {format_instructions}"""
+                
+                """
+                Vous êtes EV Genius, un expert en véhicules électriques pour Peugeot et un conseiller amical. Engagez-vous dans une conversation en privilégiant un véritable échange plutôt qu’un simple dialogue de questions et réponses.
+                - Si l'utilisateur commence par 'hello' ou 'bonjour', répondez simplement par un bonjour et présentez-vous en tant qu'expert en véhicules électriques. Demandez comment vous pouvez les aider aujourd'hui de manière amicale, très court et concis.
+                - En tant que commercial pour Peugeot, mettez subtilement en avant les avantages des véhicules électriques de Peugeot et les services associés, en adaptant la conversation aux besoins spécifiques de l'utilisateur, sans être trop orienté vers la vente, donc finissez toujours par une question. Example : Quelles sont les best apps peugeot ? les bests app sont .... , avez vous deja utilisé une app peugeot ? 
+                - Soulignez que Peugeot propose une large gamme de véhicules avec des services associés qui peuvent répondre aux besoins spécifiques du client.
+                - **Finissez toujours la réponse par une question courte pour relancer la conversation, en fonction de la réponse précédente, comme dans une conversation normale, tout en gardant à l’esprit que vous êtes un commercial.**
+
+                Voici l'historique des échanges précédents pour contexte :
+                {history}
+                Nouvelle requête de l'utilisateur :
+                {user_input}
+                Répondez directement et de manière concise à la requête de l'utilisateur sans répéter la question. Ensuite, proposez 2-3 questions-clés courtes ou mots-clés (de préférence 2 mots-clés, mais si pertinent 3) basés sur l'historique de la conversation pour relancer le dialogue.
+                **Lorsque l'utilisateur clique sur l'un des mots-clés ou questions, répondez de manière concise et précise, et cela doit être fluide et naturel, en fonction de la réponse précédente. Finissez toujours par une question courte pour relancer la conversation, en gardant à l'esprit que vous êtes un commercial.**
+                Pour des sujets généraux comme 'hello' ou 'comment ça va ?', proposez des mots-clés. Pour des sujets plus spécifiques, suggérez des questions courtes pour faire avancer la conversation.
+                Formatez votre réponse selon ces instructions : {format_instructions}
+                """
+            ),
+        ],
+        input_variables=["user_input", "history"],
+        partial_variables={"format_instructions": output_parser.get_format_instructions()},
+    )
+    bedrock_llm = choose_model()
+    chain = prompt | bedrock_llm | output_parser
+    chain.invoke({
+            "user_input": user_input,
+            "history": history,
+            "context": context,
+        })
+    
+    # print(f"Type of chain: {type(chain)}")
+    
+      # Save the 2 prompts in a log file
+    with open('log_ev.txt', 'w') as f:
+        f.write(formatted_system_prompt)
+        f.write("\n")
+        f.write("User query: " + user_input + ", history: " + str(history) + ", context: " + context)
+        
+    return chain
+
+@st.cache_resource
+def initialize_chain_commercial(history, user_input):
+    """ Initialize the conservation chain with system prompt, message history, and user input for commercial team"""
+    
+    current_directory = Path(__file__).resolve().parent 
+    system_prompt_path = current_directory / "prompt/system_prompt_commercial.txt"
+    context = current_directory / "parsed_data/peugeot_data.txt"
+    
+
+    
+    if not system_prompt_path.exists():
+        raise FileNotFoundError("System prompt file not found.")
+
+    
+    # Read system prompt 
+    system_prompt = system_prompt_path.read_text()
+    context = context.read_text()
+    
+    formatted_system_prompt = system_prompt
+    
+    # prompt = ChatPromptTemplate(
+    #     messages=[
+    #         SystemMessagePromptTemplate.from_template(formatted_system_prompt),
+    #         HumanMessagePromptTemplate.from_template("Vous êtes EV Genius, un expert en véhicules électriques pour Peugeot et un ami , voici l'Historique des échanges précédents :\n{history}\n\n et la Nouvelle requête de l'utilisateur :\n{user_input} répondre de maniere concise et courte et finis avec une question, quand tu ne sais pas ou que la question est top large poser une autre question pour affiner la demande comme une conversation normale et quand tu ne sais pas dit le"),
+    #     ],
+    #     input_variables=["user_input", "history"],
+    # )
+    prompt = ChatPromptTemplate(
+        messages=[
+            SystemMessagePromptTemplate.from_template(system_prompt),
+            HumanMessagePromptTemplate.from_template(
+                """"  
+                    Vous êtes EV Genius, un expert en véhicules électriques pour Peugeot et un conseiller amical. Engagez-vous dans une conversation en privilégiant un véritable échange plutôt qu’un simple dialogue de questions et réponses.
+                    - Si l'utilisateur commence par 'hello' ou 'bonjour', répondez simplement par un bonjour et présentez-vous en tant qu'expert en véhicules électriques. Demandez comment vous pouvez les aider aujourd'hui de manière amicale, tres court et concis.
+                    - En tant que commercial pour Peugeot, mettez subtilement en avant les avantages des véhicules électriques de Peugeot et les services associés, en adaptant la conversation aux besoins spécifiques de l'utilisateur, sans être trop orienté vers la vente, donc finissez toujours par une question. Example : Quelles sont les best apps peugeot ? les bests app sont .... , avez vous deja utilisé une app peugeot ? 
+                    - Soulignez que Peugeot propose une large gamme de véhicules avec des services associés qui peuvent répondre aux besoins spécifiques du client.
+                    - Finissez toujours par une question courte pour relancer la conversation, en fonction de la réponse précédente, comme dans une conversation normale, tout en gardant à l’esprit que vous êtes un commercial, donc la réponse de la question doit toujours finir par une question pour relancer la conversation.
+
+                    Voici l'historique des échanges précédents pour contexte :
+                    {history}
+                    Nouvelle requête de l'utilisateur :
+                    {user_input}
+                    Répondez directement et de manière concise à la requête de l'utilisateur sans répéter la question. Ensuite, proposez 2-3 questions-clés courtes ou mots-clés (de préférence 2 mots-clés, mais si pertient 3) basés sur l'historique de la conversation pour relancer le dialogue.
+                    Lorsque lu'utilisateur clique sur l'un des mots-clés ou questions, répondez de manière concise et précise, et cela doit être fluide et naturel, en fonction de la réponse précédente.
+                    Pour des sujets généraux comme 'hello' ou 'comment ça va ?', proposez des mots-clés. Pour des sujets plus spécifiques, suggérez des questions courtes pour faire avancer la conversation.
+                    Formatez votre réponse selon ces instructions : {format_instructions}"""
+            ),
+        ],
+        input_variables=["user_input", "history"],
+        partial_variables={"format_instructions": output_parser.get_format_instructions()},
+    )
+    
+    # Get the Bedrock model
+    bedrock_llm = choose_model()
+    chain = prompt | bedrock_llm | output_parser
+    
+    chain.invoke({
+            "user_input": user_input,
+            "history": history,
+        })
+    
+    # print(f"Type of chain: {type(chain)}")
+    
+    # Save the 2 prompts in a log file
+    with open('log_commercial.txt', 'w') as f:
+        f.write(formatted_system_prompt)
+        f.write("\n")
+        f.write("User query: " + user_input + ", history: " + str(history) + ", context: " + context)
+    
+    
+    return chain
+    
+# Function to add message to chat history
+def add_message_to_history(role, content):
+    chat_history = chat_history_var.get()
+    chat_history.append({"role": role, "content": content})
+    chat_history_var.set(chat_history)
