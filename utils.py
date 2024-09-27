@@ -43,7 +43,7 @@ def check_question_type(user_input,history):
  
     template = ChatPromptTemplate(
         messages=[
-            SystemMessagePromptTemplate.from_template("Based on the user query and the history of the question, determine if the question needs to be answered by an expert in vehicle electric and Peugeot. If the question is related to cars, electric cars, vehicles, or Peugeot, answer yes. If the question is a general greeting, a thank you, or a question that doesn't require a specialist in cars, answer no. Our commercial team will handle those."),
+            SystemMessagePromptTemplate.from_template("Based on the user query and the history of the question, determine if the question needs to be answered by an expert in vehicle electric and Peugeot. If the question is related to cars, electric cars, vehicles, or Peugeot, answer yes. If the question is a general greeting, a thank you, or a question that doesn't require a specialist in cars, answer no. If the question is related to autonomy, public charging, home charging, battery capacity, or WLTP range of Peugeot models, reply with ok."),
             HumanMessagePromptTemplate.from_template("User query: {user_query}, history: {history},and here your knowledges:<context> {format_instructions}"),
         ],
         input_variables=["user_query", "history"],
