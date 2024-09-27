@@ -1628,9 +1628,7 @@ Un simulateur de charge pour les différents véhicules 100 % électriques et hy
 | Capacité utile (kWh)   | 46,3              | 48,1              |                        |
 | Masse (kg)             | 345               | 340               |                        |
 | Tension totale (V)     | 400               | 376               | 48                     |
-**CONSOMMATION**
-| cycle WLTP mixte (kWh/100 km) | 15,4 à la prise  | 14,0* à la prise  |                        |
-| cycle WLTP urbain (kWh/100 km) | 11,2              | 10,2              |                        |
+
 **RECHARGE (À 20°C, DE 20% À 80%)**
 | Capacité maximum AC (kW) | 11                | 11                |                        |
 | Capacité maximum DC (kW) | 100               | 100               |                        |
@@ -1639,6 +1637,7 @@ Un simulateur de charge pour les différents véhicules 100 % électriques et hy
 | en 11 kW borne de recharge AC | 9 h 05 / 3 h 05   | 9 h 05 / 2 h 55   |                        |
 | en 100 kW station de recharge rapide DC | 25 min            | 30 min            |                        |
 *Best-in-class.# 5.2 LES SUV
+
 ## E-2008
 ![E-2008](image_url)
 |                      | ÉLECTRIQUE 136 CH | ÉLECTRIQUE 156 CH | MOTEUR HYBRID 136 CH |
@@ -1652,10 +1651,6 @@ Un simulateur de charge pour les différents véhicules 100 % électriques et hy
 | Capacité utile (kWh) | 46,3              | 48,1              | 0,432 / 0,890        |
 | Masse (kg)           | 345               | 340               |                      |
 | Tension totale (V)   | 400               | 400               | 48                   |
-| en cycle WLTP mixte (km) | 340           | 406               |                      |
-| en cycle WLTP urbain (km) | 470           | 576               |                      |
-| cycle WLTP mixte (kWh/100 km) | 15,9      | 15,2              |                      |
-| cycle WLTP urbain (kWh/100 km) | 10,9      | 10,7              |                      |
 | Capacité maximum AC (kW) | 11            | 11                |                      |
 | Capacité maximum DC (kW) | 100           | 100               |                      |
 | en 3,7 kW prise renforcée type Green’Up | 9 h 04            | 11 h 10              |                      |
@@ -1681,9 +1676,7 @@ Un simulateur de charge pour les différents véhicules 100 % électriques et hy
 | Capacité utile (kWh)   | 73                | 0,43 / 0,89       |
 | Masse (kg)             | 520               | -                 |
 | Tension totale (V)     | 400               | 48                |
-## CONSOMMATION
-| cycle WLTP mixte (kWh/100 km) | 16,7-17,4         |                   |
-| cycle WLTP urbain (kWh/100 km) | 13,4-14,1         |                   |
+
 ## RECHARGE (À 20 °C, DE 20% À 80%)
 | en 3,7 kW prise renforcée type Green'Up | 23 h 15            |                   |
 | en 7,4 kW borne de recharge AC | 7 h                |                   |
@@ -1706,10 +1699,7 @@ Un simulateur de charge pour les différents véhicules 100 % électriques et hy
 | Capacité utile (kWh) | 12,4 | 12,4 |
 | Masse (kg) | | |
 | Tension totale (V) | | |
-| en cycle WLTP mixte (km) | 61-63 | 61-63 |
-| en cycle WLTP urbain (km) | 69-71 | 69-71 |
-| cycle WLTP mixte (kWh/100 km) | | |
-| cycle WLTP urbain (kWh/100 km) | | |
+
 **RECHARGE (À 20 °C, DE 20% À 80%)**
 | Capacité maximum AC (kW) | | |
 | Capacité maximum DC (kW) | | |
@@ -1732,12 +1722,7 @@ Un simulateur de charge pour les différents véhicules 100 % électriques et hy
 | Capacité utile (kWh) | 51 | 12,4 | 12,4 |
 | Masse (kg) | 340 | | |
 | Tension totale (V) | 375 | | |
-| **AUTONOMIE** | | | |
-| en cycle WLTP mixte (km) | 410-416 | 65-66 | 63-64 |
-| en cycle WLTP urbain (km) | 527-530 | 74-79 | 69-73 |
-| **CONSOMMATION** | | | |
-| cycle WLTP mixte (kWh/100 km) | 14,9;15,1 | | |
-| cycle WLTP urbain (kWh/100 km) | 11,7 | | |
+
 | **RECHARGE (À 20 °C, DE 20% À 80%)** | | | |
 | Capacité maximum AC (kW) | 11 | | |
 | Capacité maximum DC (kW) | 100 | | |
@@ -1747,11 +1732,7 @@ Un simulateur de charge pour les différents véhicules 100 % électriques et hy
 | en 11 kW borne de recharge AC | 3 h 10 | | |
 | en 100 kW station de recharge rapide DC | 27 min | | |
 # Les spécificités E-308 SW
-| | | | |
-| en cycle WLTP mixte (km) | 392-410 | 65-66 | 63-64 |
-| en cycle WLTP urbain (km) | 501-520 | 71-76 | 67-70 |
-| cycle WLTP mixte (kWh/100 km) | 15,1;15,8 | | |
-| cycle WLTP urbain (kWh/100 km) | 11,9 | | |
+
 <>end_paragraph<># 508
 ![508](image_url)
 # 508 SW
@@ -1765,18 +1746,12 @@ Un simulateur de charge pour les différents véhicules 100 % électriques et hy
 | Nombre de cellules |   |   |
 | Masse (kg) |   |   |
 | Tension totale (V) |   |   |
-| en cycle WLTP mixte (km) | 57-64 | 57-64 |
-| en cycle WLTP urbain (km) | 61-68 | 63-73 |
-| cycle WLTP mixte (kWh/100 km) |   |   |
-| cycle WLTP urbain (kWh/100 km) |   |   |
 **RECHARGE (À 20 ºC, DE 20 % À 80 %)**
 | Capacité maximum AC (kW) |   |   |
 | Capacité maximum DC (kW) |   |   |
 | en 11 kW borne de recharge AC |   |   |
 | en 100 kW station de recharge rapide DC |   |   |
 # Les spécificités 508 SW
-| en cycle WLTP mixte (km) | 55-62 | 55-62 |
-| en cycle WLTP urbain (km) | 60-67 | 61-71 |
 <>end_paragraph<># 5.4 LES SPORT ENGINEERED
 ## 508 PSE
 ![508 PSE](image_url)
@@ -1795,12 +1770,7 @@ Nombre de cellules |
 Capacité utile (kWh) |
 Masse (kg) |
 Tension totale (V) |
-**AUTONOMIE** |
-en cycle WLTP mixte (km) | 52
-en cycle WLTP urbain (km) | 54
-**CONSOMMATION** |
-cycle WLTP mixte (kWh/100 km) |
-cycle WLTP urbain (kWh/100 km) |
+
 **RECHARGE (À 20 °C, DE 20% À 80%)** |
 Capacité maximum AC (kW) |
 Capacité maximum DC (kW) |
@@ -2032,6 +2002,10 @@ Cette démarche assure la reconduction automatique de la garantie par périodes 
 ALLURE CARE est transférable avec le véhicule, ce qui peut augmenter sa valeur lors de la revente. <>end_paragraph<>
 *À l’exclusion de E-RIFTER et E-TRAVELLER.* <>end_paragraph<>NO_CONTENT_HERE# PEUGEOT
 L'ÉLECTRIQUE POUR TOUS
+
+
+
+
 
 
 
