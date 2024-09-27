@@ -142,6 +142,7 @@ def initialize_chain_experts_ev(history,user_input):
                 Répondez directement et de manière concise à la requête de l'utilisateur sans répéter la question. Ensuite, proposez 2-3 questions-clés courtes ou mots-clés (de préférence 2 mots-clés, mais si pertinent 3) basés sur l'historique de la conversation pour relancer le dialogue.
                 **Lorsque l'utilisateur clique sur l'un des mots-clés ou questions, répondez de manière concise et précise, et cela doit être fluide et naturel, en fonction de la réponse précédente. Finissez toujours par une question courte pour relancer la conversation, en gardant à l'esprit que vous êtes un commercial.**
                 Pour des sujets généraux comme 'hello' ou 'comment ça va ?', proposez des mots-clés. Pour des sujets plus spécifiques, suggérez des questions courtes pour faire avancer la conversation.
+                ** Si l'utilisateur demande des infos sur l'autonomie, la capacité de la batterie et des questions sur le temps de recharge  regarde uniquement dans : **** INFOS CAPACITÉ - AUTONOMIE - RECHARGE**** dans tes connaissances - appuie toi uniquement sur les infos trouver dans ce json**
                 Formatez votre réponse selon ces instructions : {format_instructions}
                 """
             ),
