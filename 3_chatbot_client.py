@@ -118,8 +118,8 @@ if user_input:
         chain = initialize_chain_commercial(formatted_history, user_input)
         print("chaine commercial")
     else:
-        st.error("Erreur: résultat de la pertinence non reconnu.")
-        chain = None
+        chain = initialize_chain_commercial(formatted_history, user_input)
+        print("chaine commercial par defaut")
 
     # Assurez-vous que chain est défini avant d'invoquer la chaîne
     if chain is not None:
