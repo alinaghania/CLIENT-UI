@@ -126,6 +126,8 @@ def initialize_chain_experts_ev(history,user_input):
                 - Ne répond jamais par bien sûr.
                 - Si l'utilisateur te parle d'un sujet qui n'a rien à voir avec Peugeot, les véhicules, ou les avantages des véhicules électriques, reviens à la conversation en posant une question sur Peugeot, les véhicules, ou les avantages des véhicules électriques.
                 - Si l'utilisateur te parle d'u sujet sensible ou personnel, conseille le de se ririger vers un professionnel qualifié et ne donne aucun conseil médical ou juridique, ne donne aucun numéro de téléphone ou adresse email et reviens à la conversation en posant une question sur Peugeot, les véhicules, ou les avantages des véhicules électriques.
+                - Si l'utilisateur te demande un avis sur une offre d'un vehicule d'occasion, tu peux lui dire que tu ne peux pas donner d'avis sur des vehicules d'occasion, mais tu peux l'aider à trouver un vehicule neuf qui correspond à ses besoins, car tu n'as pas les informations sur les vehicules d'occasion, et sur les sites externes à peugeot.
+                - Si l'utilisateur veut vendre son vehicule redirige le vers ce lien : https://www.reprise.peugeot.fr/?utm_source=Main-Website&utm_campaign=Menu&utm_medium=1-click&_gl=1*vf2aad*_ga*MTQzOTA5OTY4LjE3MjYwNjA2NDk.*_ga_5VGB8DK6VT*MTcyNzc5NDUzMS4xMS4xLjE3Mjc3OTQ2OTguMC4wLjA.*_ga_600PF1TJ0Z*MTcyNzc5NDUzMC4xMC4xLjE3Mjc3OTQ2OTguMC4wLjA.*_gcl_aw*R0NMLjE3MjY0ODMxMTkuQ2owS0NRandycC0zQmhEZ0FSSXNBRVdKNlN6VWpiX3ZpWjFCem9ENGMwOU9zT2M3dVE5YmRhNVJNUHlBM3M0UTFES1doMWtVbTJDRmN4RWFBaEp0RUFMd193Y0I.*_gcl_dc*R0NMLjE3MjY0ODMxMTkuQ2owS0NRandycC0zQmhEZ0FSSXNBRVdKNlN6VWpiX3ZpWjFCem9ENGMwOU9zT2M3dVE5YmRhNVJNUHlBM3M0UTFES1doMWtVbTJDRmN4RWFBaEp0RUFMd193Y0I.*_gcl_au*MTkyMTAzNjk5LjE3MjYwNjA2NTA.
 
                 Voici l'historique des échanges précédents pour contexte :  
                 {history}  
@@ -226,6 +228,8 @@ def initialize_chain_commercial(history, user_input):
                 - Ne communique aucun numéro de téléphone ou adresse email, redirige toujours vers le site de Peugeot.
                 - Si l'utilisateur te parle d'un sujet qui n'a rien à voir avec Peugeot, les véhicules, ou les avantages des véhicules électriques, reviens à la conversation en posant une question sur Peugeot, les véhicules, ou les avantages des véhicules électriques.
                 - Si l'utilisateur te parle d'u sujet sensible ou personnel, conseille le de se ririger vers un professionnel qualifié et ne donne aucun conseil médical ou juridique, ne donne aucun numéro de téléphone ou adresse email et reviens à la conversation en posant une question sur Peugeot, les véhicules, ou les avantages des véhicules électriques.
+                - Si l'utilisateur te demande un avis sur une offre d'un vehicule d'occasion, tu peux lui dire que tu ne peux pas donner d'avis sur des vehicules d'occasion, mais tu peux l'aider à trouver un vehicule neuf qui correspond à ses besoins, car tu n'as pas les informations sur les vehicules d'occasion, et sur les sites externes à peugeot.
+                 - Si l'utilisateur veut vendre son vehicule redirige le vers ce lien : https://www.reprise.peugeot.fr/?utm_source=Main-Website&utm_campaign=Menu&utm_medium=1-click&_gl=1*vf2aad*_ga*MTQzOTA5OTY4LjE3MjYwNjA2NDk.*_ga_5VGB8DK6VT*MTcyNzc5NDUzMS4xMS4xLjE3Mjc3OTQ2OTguMC4wLjA.*_ga_600PF1TJ0Z*MTcyNzc5NDUzMC4xMC4xLjE3Mjc3OTQ2OTguMC4wLjA.*_gcl_aw*R0NMLjE3MjY0ODMxMTkuQ2owS0NRandycC0zQmhEZ0FSSXNBRVdKNlN6VWpiX3ZpWjFCem9ENGMwOU9zT2M3dVE5YmRhNVJNUHlBM3M0UTFES1doMWtVbTJDRmN4RWFBaEp0RUFMd193Y0I.*_gcl_dc*R0NMLjE3MjY0ODMxMTkuQ2owS0NRandycC0zQmhEZ0FSSXNBRVdKNlN6VWpiX3ZpWjFCem9ENGMwOU9zT2M3dVE5YmRhNVJNUHlBM3M0UTFES1doMWtVbTJDRmN4RWFBaEp0RUFMd193Y0I.*_gcl_au*MTkyMTAzNjk5LjE3MjYwNjA2NTA.
 
                 Voici l'historique des échanges précédents pour contexte :  
                 {history}  
@@ -334,12 +338,14 @@ def initialize_chain_expert_data_ev_capacity(history, user_input):
                 - N'hésitez pas à rediriger l'utilisateur vers le site de Peugeot lorsque c'est pertinent et lorsque vous n'avez pas la réponse. Par exemple, si l'utilisateur demande des informations sur comment essayer un véhicule, redirigez-le vers le bon lien en disant : "Vous pouvez consulter cette page..."
                 - Ne répond jamais par bien sûr.
                 - Si l'utilisateur te parle d'un sujet qui n'a rien à voir avec Peugeot, les véhicules, ou les avantages des véhicules électriques, reviens à la conversation en posant une question sur Peugeot, les véhicules, ou les avantages des véhicules électriques.
-                - Si l'utilisateur te parle d'u sujet sensible ou personnel, conseille le de se ririger vers un professionnel qualifié et ne donne aucun conseil médical ou juridique, ne donne aucun numéro de téléphone ou adresse email et reviens à la conversation en posant une question sur Peugeot, les véhicules, ou les avantages des véhicules électriques.
-                
+                - Si l'utilisateur te parle d'un sujet sensible ou personnel, conseille le de se ririger vers un professionnel qualifié et ne donne aucun conseil médical ou juridique, ne donne aucun numéro de téléphone ou adresse email et reviens à la conversation en posant une question sur Peugeot, les véhicules, ou les avantages des véhicules électriques.
+                - Si l'utilisateur te demande un avis sur une offre d'un vehicule d'occasion, tu peux lui dire que tu ne peux pas donner d'avis sur des vehicules d'occasion, mais tu peux l'aider à trouver un vehicule neuf qui correspond à ses besoins, car tu n'as pas les informations sur les vehicules d'occasion, et sur les sites externes à peugeot.
+                - Si l'utilisateur veut vendre son vehicule redirige le vers ce lien : https://www.reprise.peugeot.fr/?utm_source=Main-Website&utm_campaign=Menu&utm_medium=1-click&_gl=1*vf2aad*_ga*MTQzOTA5OTY4LjE3MjYwNjA2NDk.*_ga_5VGB8DK6VT*MTcyNzc5NDUzMS4xMS4xLjE3Mjc3OTQ2OTguMC4wLjA.*_ga_600PF1TJ0Z*MTcyNzc5NDUzMC4xMC4xLjE3Mjc3OTQ2OTguMC4wLjA.*_gcl_aw*R0NMLjE3MjY0ODMxMTkuQ2owS0NRandycC0zQmhEZ0FSSXNBRVdKNlN6VWpiX3ZpWjFCem9ENGMwOU9zT2M3dVE5YmRhNVJNUHlBM3M0UTFES1doMWtVbTJDRmN4RWFBaEp0RUFMd193Y0I.*_gcl_dc*R0NMLjE3MjY0ODMxMTkuQ2owS0NRandycC0zQmhEZ0FSSXNBRVdKNlN6VWpiX3ZpWjFCem9ENGMwOU9zT2M3dVE5YmRhNVJNUHlBM3M0UTFES1doMWtVbTJDRmN4RWFBaEp0RUFMd193Y0I.*_gcl_au*MTkyMTAzNjk5LjE3MjYwNjA2NTA.
                 
 
                 Ensuite, proposez 2-3 questions-clés courtes ou mots-clés basés sur l'historique et uniquement UN rapport avec peugeot,l'EV, de la conversation pour relancer le dialogue. Ce sont des suggestions du point de vue de l'utilisateur, des questions qu'il pourrait poser ( mais très court et concis max 2-3 mots).
                 Ces suggestions doivent toujours avoir un lien avec Peugeot, les véhicules électriques, ou les avantages des véhicules électriques, si l'utilisateur te parle d'un autre sujet qui n'a rien à voir avec Peugeot, ou les vehicules, example : "je me sens mal" les suggestions doivent etre en rapport avec peugeot, les vehicules, les avantages des vehicules electriques, etc.
+                
 
                 Formatez votre réponse selon ces instructions : {format_instructions}
                 """
@@ -360,5 +366,6 @@ def initialize_chain_expert_data_ev_capacity(history, user_input):
         })
     
     return chain
+
 
 
