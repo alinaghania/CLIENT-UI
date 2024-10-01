@@ -1,0 +1,152 @@
+**** INFOS CAPACITÉ - AUTONOMIE - RECHARGE****
+"""
+    "véhicules": [
+     """
+        "modèle": "Peugeot e208 100kW",
+        "capacité_batterie": "50 kWh",
+        "autonomie_wltp": "360 km",
+        "recharge_domicile":"""
+          "easy_wb_installation": "10 h",
+          "epro_wb_installation": "7 h"
+        """,
+        "recharge_publique":"""
+          "chargeur_rapide_dc": "50 min"
+        """
+      """,
+     """
+        "modèle": "Peugeot e2008 100kW",
+        "capacité_batterie": "50 kWh",
+        "autonomie_wltp": "340 km",
+        "recharge_domicile":"""
+          "easy_wb_installation": "10 h",
+          "epro_wb_installation": "7 h"
+        """,
+        "recharge_publique":"""
+          "chargeur_rapide_dc": "50 min"
+        """
+      """,
+     """
+        "modèle": "Peugeot e208 115kW",
+        "capacité_batterie": "51 kWh",
+        "autonomie_wltp": "400 km",
+        "recharge_domicile":"""
+          "easy_wb_installation": "10 h",
+          "epro_wb_installation": "7 h"
+        """,
+        "recharge_publique":"""
+          "chargeur_rapide_dc": "50 min"
+        """
+      """,
+     """
+        "modèle": "Peugeot e2008 115kW",
+        "capacité_batterie": "54 kWh",
+        "autonomie_wltp": "400 km",
+        "recharge_domicile":"""
+          "easy_wb_installation": "11 h",
+          "epro_wb_installation": "7 h"
+        """,
+        "recharge_publique":"""
+          "chargeur_rapide_dc": "50 min"
+        """
+      """,
+     """
+        "modèle": "Peugeot e308 115kW",
+        "capacité_batterie": "54 kWh",
+        "autonomie_wltp": "410 km",
+        "recharge_domicile":"""
+          "easy_wb_installation": "11 h",
+          "epro_wb_installation": "7 h"
+        """,
+        "recharge_publique":"""
+          "chargeur_rapide_dc": "50 min"
+        """
+      """,
+     """
+        "modèle": "Peugeot e3008 157kW",
+        "capacité_batterie": "80 kWh",
+        "autonomie_wltp": "525 km",
+        "recharge_domicile":"""
+          "easy_wb_installation": "16 h",
+          "epro_wb_installation": "11 h"
+        """,
+        "recharge_publique":"""
+          "chargeur_rapide_dc": "50 min"
+        """
+      """,
+     """
+        "modèle": "Peugeot Expert 50kWh",
+        "capacité_batterie": "50 kWh",
+        "autonomie_wltp": "230 km",
+        "recharge_domicile":"""
+          "easy_wb_installation": "10 h",
+          "epro_wb_installation": "7 h"
+        """,
+        "recharge_publique":"""
+          "chargeur_rapide_dc": "50 min"
+        """
+      """,
+     """
+        "modèle": "Peugeot Expert 50kWh",
+        "capacité_batterie": "75 kWh",
+        "autonomie_wltp": "330 km",
+        "recharge_domicile":"""
+          "easy_wb_installation": "15 h",
+          "epro_wb_installation": "10 h"
+        """,
+        "recharge_publique":"""
+          "chargeur_rapide_dc": "50 min"
+        """
+      """,
+     """
+        "modèle": "Peugeot Partner",
+        "capacité_batterie": "50 kWh",
+        "autonomie_wltp": "285 km",
+        "recharge_domicile":"""
+          "easy_wb_installation": "10 h",
+          "epro_wb_installation": "7 h"
+        """,
+        "recharge_publique":"""
+          "chargeur_rapide_dc": "50 min"
+        """
+      """
+    ]
+  """
+** Les SHOWROOM URL présentent les modèles Peugeot, tandis que les CONFIGURE URL permettent de les personnaliser en ligne. **
+
+
+
+*** Liens pour plus d'infos ou essayer le véhicule *** : 
+
+
+  "models": [
+  "model": "208",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouvelle-peugeot-208.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/nouvelle-208-5-portes"
+  ,
+  "model": "2008",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouveau-suv-peugeot-2008.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/nouveau-2008-suv"
+  ,
+  "model": "308",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouvelle-308.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/308-berline"
+  ,
+  "model": "308 SW",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouvelle-308-sw.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/308-sw"
+  ,
+  "model": "3008",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouveau-peugeot-3008/electrique.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/nouveau-3008-suv"
+  ,
+  "model": "Expert",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouveau-e-expert.html",
+  ,
+  "model": "Expert Combi",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/expert-combi.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/nouveau-expert-combi-m"
+  ,
+  "model": "Partner",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouveau-e-partner.html",
+
+]
