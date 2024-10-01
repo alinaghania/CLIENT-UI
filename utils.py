@@ -35,15 +35,15 @@ def get_memory():
     return ConversationBufferMemory(return_messages=True)
 
 @st.cache_resource
-def check_question_type(user_input,history):
+def check_question_type(user_input, history):
     class Relevant(BaseModel):
-        relevant_yes_no: str = Field(description="yes or no")
+        relevant_yes_no: str = Field(description="yes, no, or ok")
         
     output_parser = JsonOutputParser(pydantic_object=Relevant)
  
     template = ChatPromptTemplate(
         messages=[
-            SystemMessagePromptTemplate.from_template("Based on the user query and the history of the question, determine if the question needs to be answered by an expert in vehicle electric and Peugeot. If the question is related to cars, electric cars, vehicles, or Peugeot, answer yes. If the question is a general greeting, a thank you, or a question that doesn't require a specialist in cars, answer no. If the question is related to autonomy, public charging, home charging, battery capacity, or WLTP range of Peugeot models, reply with ok."),
+            SystemMessagePromptTemplate.from_template("Based on the user query and the history of the question, determine if the question needs to be answered by an expert in vehicle electric and Peugeot. If the question is related to cars, electric cars, vehicles, or Peugeot, answer yes. If the question is a general greeting, a thank you, or a question that doesn't require a specialist in cars, answer no. If the question is related to autonomy, public charging, home charging, battery capacity, or WLTP range of Peugeot models( E-208, E-2008, E-308,E-3008,Peugeot expert and peugeot partner), reply with ok.Also reply by 'ok' if the user want information about one of these models :(  E-208, E-2008, E-308,E-3008,Peugeot expert and peugeot partner) if the question is related to the nearby location of the position of the user, reply with no."),
             HumanMessagePromptTemplate.from_template("User query: {user_query}, history: {history},and here your knowledges:<context> {format_instructions}"),
         ],
         input_variables=["user_query", "history"],
@@ -59,11 +59,11 @@ def check_question_type(user_input,history):
             "history": history,
         })
         print(f"AI CHOICE =>  {result}")
-        return result["relevant_yes_no"] == "yes"
+        return result["relevant_yes_no"]  # It will now return "yes", "ok", or "no"
     except Exception as e:
         print(f"Exception: {e}")
-        
-        return False
+        return "no"  # Default to "no" in case of error
+
 
 
 
@@ -99,6 +99,17 @@ def initialize_chain_experts_ev(history,user_input):
 
     # Replace placeholder {context} in system prompt with actual context content
     formatted_system_prompt = system_prompt
+    
+    # Save the system prompt locally
+    with open('log_system_prompt_experts_ev.txt', 'w') as f:
+        f.write("System Prompt:\n")
+        f.write(system_prompt)
+        f.write("\nUser Query:\n")
+        f.write(user_input)
+        f.write("\nHistory:\n")
+        f.write(history)
+        f.write("\nContext:\n")
+        f.write(context)
     
     # prompt = ChatPromptTemplate(
     #     messages=[
@@ -142,7 +153,6 @@ def initialize_chain_experts_ev(history,user_input):
                 Répondez directement et de manière concise à la requête de l'utilisateur sans répéter la question. Ensuite, proposez 2-3 questions-clés courtes ou mots-clés (de préférence 2 mots-clés, mais si pertinent 3) basés sur l'historique de la conversation pour relancer le dialogue.
                 **Lorsque l'utilisateur clique sur l'un des mots-clés ou questions, répondez de manière concise et précise, et cela doit être fluide et naturel, en fonction de la réponse précédente. Finissez toujours par une question courte pour relancer la conversation, en gardant à l'esprit que vous êtes un commercial.**
                 Pour des sujets généraux comme 'hello' ou 'comment ça va ?', proposez des mots-clés. Pour des sujets plus spécifiques, suggérez des questions courtes pour faire avancer la conversation.
-                ** Si l'utilisateur demande des infos sur l'autonomie, la capacité de la batterie et des questions sur le temps de recharge  regarde uniquement dans : **** INFOS CAPACITÉ - AUTONOMIE - RECHARGE**** dans tes connaissances - appuie toi uniquement sur les infos trouver dans ce json**
                 Formatez votre réponse selon ces instructions : {format_instructions}
                 """
             ),
@@ -205,6 +215,9 @@ def initialize_chain_commercial(history, user_input):
                     - En tant que commercial pour Peugeot, mettez subtilement en avant les avantages des véhicules électriques de Peugeot et les services associés, en adaptant la conversation aux besoins spécifiques de l'utilisateur, sans être trop orienté vers la vente, donc finissez toujours par une question. Example : Quelles sont les best apps peugeot ? les bests app sont .... , avez vous deja utilisé une app peugeot ? 
                     - Soulignez que Peugeot propose une large gamme de véhicules avec des services associés qui peuvent répondre aux besoins spécifiques du client.
                     - Finissez toujours par une question courte pour relancer la conversation, en fonction de la réponse précédente, comme dans une conversation normale, tout en gardant à l’esprit que vous êtes un commercial, donc la réponse de la question doit toujours finir par une question pour relancer la conversation.
+                    - Ne répondez pas aux questions hors sujet ou trop générales, mais posez une question pour affiner la demande, ou changez de sujet pour parler des véhicules électriques Peugeot, des services associés, ou des avantages des véhicules électriques.
+                    - Si l'utilisateur te demande des informations sur le concessionnaire le plus proche, rediriger le vers ce lien : https://concessions.peugeot.fr/
+                    - Si l'utilisateur te demande des informations sur comment essayer un véhicule ou prendre rendez-vous pour un essai,ou qu'il manifeste l'envie de tester le véhicule redirige-le vers ce lien, ou même lorsqu'il te demande des infos sur un modele n'hesite pas à lui dire qu'il peut tester le modele : https://essai.peugeot.fr/
 
                     Voici l'historique des échanges précédents pour contexte :
                     {history}
@@ -245,3 +258,63 @@ def add_message_to_history(role, content):
     chat_history = chat_history_var.get()
     chat_history.append({"role": role, "content": content})
     chat_history_var.set(chat_history)
+
+@st.cache_resource
+def initialize_chain_expert_data_ev_capacity(history, user_input):
+    current_directory = Path(__file__).resolve().parent  
+
+    system_prompt_path = current_directory / "prompt/system_prompt_expert_data_ev_capacity.txt"
+    context_path = current_directory / "parsed_data/peugeot_capacity_data.txt"
+
+    if not system_prompt_path.exists():
+        raise FileNotFoundError("System prompt file not found.")
+    if not context_path.exists():
+        raise FileNotFoundError("Context file not found.")
+
+    system_prompt = system_prompt_path.read_text()
+    
+    context = context_path.read_text()
+    
+    # replace placeholder {context} in system prompt with actual context content
+    
+    system_prompt = system_prompt.replace("{context}", context)
+    # Save the system prompt locally
+    with open('log_system_prompt_expert_data_ev_capacity.txt', 'w') as f:
+        f.write("System Prompt:\n")
+        f.write(system_prompt)
+
+    
+    
+    prompt = ChatPromptTemplate(
+        messages=[
+            SystemMessagePromptTemplate.from_template(system_prompt),
+            HumanMessagePromptTemplate.from_template(
+                """  
+                Vous êtes EV Genius, un expert en véhicules électriques pour Peugeot et un conseiller amical...
+                {history}
+                Nouvelle requête de l'utilisateur :
+                {user_input}
+                Répondez directement et de manière concise à la requête de l'utilisateur sans répéter la question.
+                Réponse courte de max 3-4 lignes
+                Quand vous ne savez pas, posez une question pour affiner la demande comme dans une conversation normale.
+                N'hesitez pas à rediriger l'utilisateur vers le site de Peugeot si vous ne savez pas, ou vers un lien utile et pertinent par example si l'utilisateur demande des informations sur comment essayer le vehicule le rediriger vers le bon lien, en disant vous pouvez consulter cette page ...
+                
+                Ensuite, proposez 2-3 questions-clés courtes ou mots-clés basés sur l'historique de la conversation pour relancer le dialogue.
+                Formatez votre réponse selon ces instructions : {format_instructions}"""
+            ),
+        ],
+        input_variables=["user_input", "history"],
+        partial_variables={"format_instructions": output_parser.get_format_instructions()},
+    )
+
+    bedrock_llm = choose_model()
+
+    chain = prompt | bedrock_llm | output_parser
+    chain.invoke({
+            "user_input": user_input,
+            "history": history,
+            "context": context,
+        })
+    
+    return chain
+
