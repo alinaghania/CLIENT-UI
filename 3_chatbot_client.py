@@ -146,3 +146,4 @@ if user_input:
     else:
         st.error("Erreur: Chaîne non initialisée correctement.")
 
+
