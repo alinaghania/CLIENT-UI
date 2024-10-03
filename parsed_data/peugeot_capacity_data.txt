@@ -116,37 +116,91 @@
 
 
 *** Liens pour plus d'infos ou essayer le véhicule *** : 
+les demandes d'offres sont des pages qui permettent aux clients d’obtenir des informations tarifaires détaillées et des offres commerciales personnalisées pour différents modèles Peugeot. Elles sont utiles pour les clients souhaitant en savoir plus sur les prix, les conditions d’achat, et éventuellement bénéficier de promotions spécifiques. Une fois la demande envoyée, un conseiller les contactera pour les détails.
+
 
 
   "models": [
   "model": "208",
   "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouvelle-peugeot-208.html",
-  "configure_url": "https://store.peugeot.fr/trim/configurable/nouvelle-208-5-portes"
+  "configure_url": "https://store.peugeot.fr/trim/configurable/nouvelle-208-5-portes",
+  "demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_208.html"
   ,
   "model": "2008",
   "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouveau-suv-peugeot-2008.html",
-  "configure_url": "https://store.peugeot.fr/trim/configurable/nouveau-2008-suv"
+  "configure_url": "https://store.peugeot.fr/trim/configurable/2008-suv",
+  "demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_Nouveau_2008.html"
   ,
   "model": "308",
   "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouvelle-308.html",
-  "configure_url": "https://store.peugeot.fr/trim/configurable/308-berline"
+  "configure_url": "https://store.peugeot.fr/trim/configurable/308-berline",
+  ""demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_Nouvelle_308.html"
   ,
   "model": "308 SW",
   "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouvelle-308-sw.html",
-  "configure_url": "https://store.peugeot.fr/trim/configurable/308-sw"
+  "configure_url": "https://store.peugeot.fr/trim/configurable/308-sw",
+  "demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_308_sw.html"
+
   ,
   "model": "3008",
   "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouveau-peugeot-3008/electrique.html",
-  "configure_url": "https://store.peugeot.fr/trim/configurable/nouveau-3008-suv"
+  "configure_url": "https://store.peugeot.fr/trim/configurable/nouveau-3008-suv",
+  "demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_nouveau_3008.html"
   ,
   "model": "Expert",
   "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouveau-e-expert.html",
+  "demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_nouveau_expert.html"
+
   ,
   "model": "Expert Combi",
   "showroom_url": "https://www.peugeot.fr/nos-vehicules/expert-combi.html",
-  "configure_url": "https://store.peugeot.fr/trim/configurable/nouveau-expert-combi-m"
+  "configure_url": "https://www.peugeot.fr/nos-vehicules/expert-combi.html",
+  "demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_Expert_Combi.html"
   ,
   "model": "Partner",
   "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouveau-e-partner.html",
+  "demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_nouveau_partner.html",
+  
 
-]
+
+  
+
+***Argumentaires à mettre en avant sur les AVANTAGES DE L’ELECTRIQUE,AUTONOMIE,RECHARGE,COUT & ECONOMIE,GARANTIE et IMPACT ENVIRONMENTAL***
+
+AVANTAGES DE L’ELECTRIQUE
+•	Une large gamme de véhicules électriques adaptés à tous les besoins
+•	Economiser grâce au passage à l’électrique
+•	Une conduite plus sereine, silencieuse et sans vibrations
+•	Entretien simplifié, moins coûteux et jusqu’à 8 ans de Garantie Allure Care 
+•	Des services connectés pour faciliter la conduite et le quotidien en électrique
+•	Une empreinte écologique réduite au roulage
+AUTONOMIE
+•	Jusqu’à 700 km d’autonomie électrique WLTP
+•	Mode Eco pour optimiser l'autonomie
+•	Freinage régénératif pour récupérer de l'énergie
+•	Affichage en temps réel de l'autonomie restante
+•	Planification d'itinéraires optimisés avec localisation des bornes sur le trajet
+•	Pré-conditionnement de la climatisation ou du chauffage pour préserver l’autonomie
+RECHARGE 
+•	Wallbox offerte pour l’achat d’un véhicule électrique
+•	On-The-Go Charging pass offert pour l’achat d’un véhicule électrique
+•	Accès à plus de 800 000 points de recharge en Europe
+•	Des solutions de recharge adaptées à tous vos besoins
+•	Recharge rapide : jusqu’à 100km d’autonomie en 10 min 
+COUT & ECONOMIE
+•	Cout d’usage jusqu'à 3x moins cher qu’un véhicule thermique
+•	Bonus écologique : jusqu'à 5000€ pour un véhicule électrique neuf
+•	Prime à la conversion : jusqu'à 2500€ pour le remplacement d'un ancien véhicule
+•	Entretien jusqu'à 30% moins cher
+•	Stationnement gratuit dans certaines villes
+•	Avantages fiscaux 
+GARANTIE
+•	Garantie Peugeot Allure Care
+•	Jusqu'à 8 ans d’extension de garantie inclus
+•	Batterie garantie jusqu'à 8 ans inclus
+•	Entretien complet et régulier du véhicule inclus
+•	Couverture étendue à l’Union Européenne, Suisse et Royaume Uni (sous conditions)
+IMPACT ENVIRONMENTAL
+•	Objectif carbone zéro d'ici 2038
+•	Economie circulaire et utilisation de matériaux recyclés
+•	0 gramme de CO2 rejeté au roulage
