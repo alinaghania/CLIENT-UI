@@ -1,122 +1,55 @@
 Les avantages de l’électrique : https://www.peugeot.fr/electrique-et-hybride/avantages.html
 
-Voici les caractéristiques de quelques modèles concernant la batterie, l'autonomie, Si un utilisateur ne précise pas le modèle exact, réponds avec les capacités maximales disponibles. : 
+***Voici quelques liens pour quelques modeles peugeot, Les SHOWROOM URL présentent les modèles Peugeot, tandis que les CONFIGURE URL permettent de les personnaliser en ligne. **
+les demandes d'offres sont des pages qui permettent aux clients d’obtenir des informations tarifaires détaillées et des offres commerciales personnalisées pour différents modèles Peugeot. Elles sont utiles pour les clients souhaitant en savoir plus sur les prix, les conditions d’achat, et éventuellement bénéficier de promotions spécifiques. Une fois la demande envoyée, un conseiller les contactera pour les détails.
 
 
-**** INFOS CAPACITÉ - AUTONOMIE - RECHARGE****
-{
-    "véhicules": [
-      {
-        "modèle": "Peugeot e208 100kW",
-        "capacité_batterie": "50 kWh",
-        "autonomie_wltp": "360 km",
-        "recharge_domicile": {
-          "easy_wb_installation": "10 h",
-          "epro_wb_installation": "7 h"
-        },
-        "recharge_publique": {
-          "chargeur_rapide_dc": "50 min"
-        }
-      },
-      {
-        "modèle": "Peugeot e2008 100kW",
-        "capacité_batterie": "50 kWh",
-        "autonomie_wltp": "340 km",
-        "recharge_domicile": {
-          "easy_wb_installation": "10 h",
-          "epro_wb_installation": "7 h"
-        },
-        "recharge_publique": {
-          "chargeur_rapide_dc": "50 min"
-        }
-      },
-      {
-        "modèle": "Peugeot e208 115kW",
-        "capacité_batterie": "51 kWh",
-        "autonomie_wltp": "400 km",
-        "recharge_domicile": {
-          "easy_wb_installation": "10 h",
-          "epro_wb_installation": "7 h"
-        },
-        "recharge_publique": {
-          "chargeur_rapide_dc": "50 min"
-        }
-      },
-      {
-        "modèle": "Peugeot e2008 115kW",
-        "capacité_batterie": "54 kWh",
-        "autonomie_wltp": "400 km",
-        "recharge_domicile": {
-          "easy_wb_installation": "11 h",
-          "epro_wb_installation": "7 h"
-        },
-        "recharge_publique": {
-          "chargeur_rapide_dc": "50 min"
-        }
-      },
-      {
-        "modèle": "Peugeot e308 115kW",
-        "capacité_batterie": "54 kWh",
-        "autonomie_wltp": "410 km",
-        "recharge_domicile": {
-          "easy_wb_installation": "11 h",
-          "epro_wb_installation": "7 h"
-        },
-        "recharge_publique": {
-          "chargeur_rapide_dc": "50 min"
-        }
-      },
-      {
-        "modèle": "Peugeot e3008 157kW",
-        "capacité_batterie": "80 kWh",
-        "autonomie_wltp": "525 km",
-        "recharge_domicile": {
-          "easy_wb_installation": "16 h",
-          "epro_wb_installation": "11 h"
-        },
-        "recharge_publique": {
-          "chargeur_rapide_dc": "50 min"
-        }
-      },
-      {
-        "modèle": "Peugeot Expert 50kWh",
-        "capacité_batterie": "50 kWh",
-        "autonomie_wltp": "230 km",
-        "recharge_domicile": {
-          "easy_wb_installation": "10 h",
-          "epro_wb_installation": "7 h"
-        },
-        "recharge_publique": {
-          "chargeur_rapide_dc": "50 min"
-        }
-      },
-      {
-        "modèle": "Peugeot Expert 50kWh",
-        "capacité_batterie": "75 kWh",
-        "autonomie_wltp": "330 km",
-        "recharge_domicile": {
-          "easy_wb_installation": "15 h",
-          "epro_wb_installation": "10 h"
-        },
-        "recharge_publique": {
-          "chargeur_rapide_dc": "50 min"
-        }
-      },
-      {
-        "modèle": "Peugeot Partner",
-        "capacité_batterie": "50 kWh",
-        "autonomie_wltp": "285 km",
-        "recharge_domicile": {
-          "easy_wb_installation": "10 h",
-          "epro_wb_installation": "7 h"
-        },
-        "recharge_publique": {
-          "chargeur_rapide_dc": "50 min"
-        }
-      }
-    ]
-  }
-  
+"models": [
+
+  "model": "408",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouvelle-408.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/nouvelle-408-berline"
+   "demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_Nouvelle_408.html"
+  ,
+  "model": "508",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouvelle-508-hybrid.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/nouvelle-508-berline"
+   "demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_Nouvelle_508.html"
+  ,
+  "model": "508 SW",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouvelle-508-sw-hybrid.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/508-sw"
+   "demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_Nouvelle_508_sw.html"
+  ,
+  "model": "508 PSE",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouvelle-508-peugeot-sport-engineered.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/508-peugeot-sport-engineered-berline"
+   "demanes_d'offres":"	https://www.peugeot.fr/tools/lp/forms_demande_offre_508_pse.html"
+  ,
+  "model": "508 PSE SW",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouvelle-508-sw-peugeot-sport-engineered.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/508-sw-peugeot-sport-engineered-sw"
+   "demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_508_sw_pse.html"
+  ,
+  "model": "5008",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouveau-peugeot-5008/electrique.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/nouveau-5008-suv"
+   "demanes_d'offres":"	https://www.peugeot.fr/tools/lp/forms_demande_offre_nouveau_5008.html"
+  ,
+  "model": "Rifter",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouveau-e-rifter.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/nouveau-rifter-taille-m"
+   "demanes_d'offres":"	https://www.peugeot.fr/tools/lp/forms_demande_offre_nouveau_rifter.html"
+  ,
+  "model": "Traveller",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouveau-e-traveller.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/nouveau-traveller-m"
+   "demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_208.html"
+  ,
+  "model": "Boxer",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouveau-e-boxer.html",
+   "demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_nouveau_boxer.html
+
 
 
 
