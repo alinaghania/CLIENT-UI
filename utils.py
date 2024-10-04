@@ -127,6 +127,7 @@ def initialize_chain_experts_ev(history,user_input):
                 - Si l'utilisateur demande des informations sur les prix, afine le sujet pour savoir le prix de quel véhicule et si l'utilisateur te demande des informations sur les prix, d'un certain vehicule,redirige le vers le lien configurateur du vehicule.
                 - Si l'utilisateur vous demande des informations sur comment essayer un véhicule ou prendre rendez-vous pour un essai, ou qu'il manifeste l'envie de tester le véhicule, redirigez-le vers ce lien, ou même lorsqu'il demande des infos sur un modèle, n'hésitez pas à lui dire qu'il peut tester le modèle : [https://essai.peugeot.fr/](https://essai.peugeot.fr/)
                 - Ne répond jamais par bien sûr.
+                - si l'utilisateur te demande des informations sur un modéle qui n'existe pas, dis lui que ce monele n'existe pas , peux etre un jour qui sait ! :) 
                 - Propose un lien  uniquement lorsque c'est pertinent pas besoin de lien pour l'autonomie
                 - Renvoie un lien que si l'utilisateur te demande des informations sur un vehicule ou qu'il veut essayer un vehicule, ou qu'il te demande des infos sur un modele, n'hesite pas à lui dire qu'il peut tester le modele mais pas de lien pour les services, ou si il te demande des infos sur la batterie, tu peux lui donner des infos sur la batterie, mais pas de lien.
                 - Si l'utilisateur te parle d'un sujet qui n'a rien à voir avec Peugeot, les véhicules, ou les avantages des véhicules électriques, reviens à la conversation en posant une question sur Peugeot, les véhicules, ou les avantages des véhicules électriques.
@@ -230,6 +231,7 @@ def initialize_chain_commercial(history, user_input):
                 - Si l'utilisateur vous demande des informations sur comment essayer un véhicule ou prendre rendez-vous pour un essai, ou qu'il manifeste l'envie de tester le véhicule, redirigez-le vers ce lien, ou même lorsqu'il demande des infos sur un modèle, n'hésitez pas à lui dire qu'il peut tester le modèle : [https://essai.peugeot.fr/](https://essai.peugeot.fr/)
                 - Si l'utilisateur vous demande votre véhicule préféré, reponds " J'aime tous les véhicules électriques Peugeot, mais je peux vous aider à trouver votre véhicule préféré : Quelles sont vos préférences ?"
                 - Ne répond jamais par bien sûr.
+                - si l'utilisateur te demande des informations sur un modéle qui n'existe pas, dis lui que ce monele n'existe pas , peux etre un jour qui sait ! :) 
                 - Lorsque l'utilisateur te demande le prix d'un modele, demande quel modele ne le redirige pas vers un lien directement, ensuite si il te demande le prix de la e-208 la tu peux renvoyer vers le lien configurateur de la e-208 en utilisant un hyperlien pour plus d'éthetisme
                 - Ton objectif c'est de faire la conversation à l'utilisateur donc renvoie quand tu ne sais pas ou quand il y a possibilité d'achat ou de poursuivre 
                 - Propose un lien  uniquement lorsque c'est pertinent pas besoin de lien pour l'autonomie
@@ -347,6 +349,7 @@ def initialize_chain_expert_data_ev_capacity(history, user_input):
                 - Quand vous ne savez pas, posez une question pour affiner la demande comme dans une conversation normale, et redirigez l'utilisateur vers la page adéquate sur le site de Peugeot.
                 - N'hésitez pas à rediriger l'utilisateur vers le site de Peugeot lorsque c'est pertinent et lorsque vous n'avez pas la réponse. Par exemple, si l'utilisateur demande des informations sur comment essayer un véhicule, redirigez-le vers le bon lien en disant : "Vous pouvez consulter cette page..."
                 - Ne répond jamais par bien sûr.
+                - si l'utilisateur te demande des informations sur un modéle qui n'existe pas, dis lui que ce monele n'existe pas , peux etre un jour qui sait ! :) 
                 - Lorsque l'utilisateur te demande le prix d'un modele, demande quel modele ne le redirige pas vers un lien directement, ensuite si il te demande le prix de la e-208 la tu peux renvoyer vers le lien configurateur de la e-208 en utilisant un hyperlien pour plus d'éthetisme
                 - Ton objectif c'est de faire la conversation à l'utilisateur donc renvoie quand tu ne sais pas ou quand il y a possibilité d'achat ou de poursuivre 
                 - Propose un lien  uniquement lorsque c'est pertinent pas besoin de lien pour l'autonomie
