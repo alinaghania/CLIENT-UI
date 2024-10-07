@@ -12,6 +12,7 @@ langchain==0.2.16
 uvicorn[standard]
 # python-multipart==0.0.9
 mangum
+pymongo
 
 
 pydantic
