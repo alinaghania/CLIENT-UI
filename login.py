@@ -44,7 +44,7 @@ def show_login():
 
     # Display the login form
     with st.container():
-        st.markdown("<h1 style='text-align: center; color: green;'>Welcome team Pullman!</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align: center; color: green;'>Welcome team Peugeot!</h1>", unsafe_allow_html=True)
 
         with st.form("login_form", clear_on_submit=True):
             username = st.text_input("Username", key="username")
