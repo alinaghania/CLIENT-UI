@@ -5,10 +5,7 @@ import re
 
 # Function to load credentials from the YAML file
 def load_credentials():
-    DATA_FOLDER = os.path.join(os.getcwd(), "hotel_ui", "data", "login")
-    assert os.path.exists(DATA_FOLDER), "Data folder does not exist"
-
-    with open(os.path.join(DATA_FOLDER, 'credentials.yaml'), 'r') as file:
+    with open(os.path.join('credentials.yaml'), 'r') as file:
         credentials = yaml.safe_load(file)
     return credentials['users']
 
