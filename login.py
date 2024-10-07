@@ -53,6 +53,6 @@ def show_login():
                 success, user_id = verify_credentials(username, password)
                 if success:
                     st.session_state['user'] = username
-                    st.experimental_rerun()  # Rerun the app to refresh after login
+                    st.rerun() # Rerun the app to refresh after login
                 else:
                     st.error("Invalid username or password")
