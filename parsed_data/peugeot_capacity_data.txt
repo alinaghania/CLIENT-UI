@@ -1,116 +1,92 @@
 **** INFOS CAPACITÉ - AUTONOMIE - RECHARGE****
-"""
-    "véhicules": [
-     """
-        "modèle": "Peugeot e208 100kW",
-        "capacité_batterie": "50 kWh",
-        "autonomie_wltp": "360 km",
-        "recharge_domicile":"""
-          "easy_wb_installation": "10 h",
-          "epro_wb_installation": "7 h"
-        """,
-        "recharge_publique":"""
-          "chargeur_rapide_dc": "50 min"
-        """
-      """,
-     """
-        "modèle": "Peugeot e2008 100kW",
-        "capacité_batterie": "50 kWh",
-        "autonomie_wltp": "340 km",
-        "recharge_domicile":"""
-          "easy_wb_installation": "10 h",
-          "epro_wb_installation": "7 h"
-        """,
-        "recharge_publique":"""
-          "chargeur_rapide_dc": "50 min"
-        """
-      """,
-     """
-        "modèle": "Peugeot e208 115kW",
-        "capacité_batterie": "51 kWh",
-        "autonomie_wltp": "400 km",
-        "recharge_domicile":"""
-          "easy_wb_installation": "10 h",
-          "epro_wb_installation": "7 h"
-        """,
-        "recharge_publique":"""
-          "chargeur_rapide_dc": "50 min"
-        """
-      """,
-     """
-        "modèle": "Peugeot e2008 115kW",
-        "capacité_batterie": "54 kWh",
-        "autonomie_wltp": "400 km",
-        "recharge_domicile":"""
-          "easy_wb_installation": "11 h",
-          "epro_wb_installation": "7 h"
-        """,
-        "recharge_publique":"""
-          "chargeur_rapide_dc": "50 min"
-        """
-      """,
-     """
-        "modèle": "Peugeot e308 115kW",
-        "capacité_batterie": "54 kWh",
-        "autonomie_wltp": "410 km",
-        "recharge_domicile":"""
-          "easy_wb_installation": "11 h",
-          "epro_wb_installation": "7 h"
-        """,
-        "recharge_publique":"""
-          "chargeur_rapide_dc": "50 min"
-        """
-      """,
-     """
-        "modèle": "Peugeot e3008 157kW",
-        "capacité_batterie": "80 kWh",
-        "autonomie_wltp": "525 km",
-        "recharge_domicile":"""
-          "easy_wb_installation": "16 h",
-          "epro_wb_installation": "11 h"
-        """,
-        "recharge_publique":"""
-          "chargeur_rapide_dc": "50 min"
-        """
-      """,
-     """
-        "modèle": "Peugeot Expert 50kWh",
-        "capacité_batterie": "50 kWh",
-        "autonomie_wltp": "230 km",
-        "recharge_domicile":"""
-          "easy_wb_installation": "10 h",
-          "epro_wb_installation": "7 h"
-        """,
-        "recharge_publique":"""
-          "chargeur_rapide_dc": "50 min"
-        """
-      """,
-     """
-        "modèle": "Peugeot Expert 50kWh",
-        "capacité_batterie": "75 kWh",
-        "autonomie_wltp": "330 km",
-        "recharge_domicile":"""
-          "easy_wb_installation": "15 h",
-          "epro_wb_installation": "10 h"
-        """,
-        "recharge_publique":"""
-          "chargeur_rapide_dc": "50 min"
-        """
-      """,
-     """
-        "modèle": "Peugeot Partner",
-        "capacité_batterie": "50 kWh",
-        "autonomie_wltp": "285 km",
-        "recharge_domicile":"""
-          "easy_wb_installation": "10 h",
-          "epro_wb_installation": "7 h"
-        """,
-        "recharge_publique":"""
-          "chargeur_rapide_dc": "50 min"
-        """
-      """
-    ]
-  """
+
+[
+    ""
+        "Model": "Peugeot E-208",
+        "Autonomie WLTP": "jusqu'à 410 km",
+        "Easy WB with installation": "10 h",
+        "ePro WB with installation": "7 h",
+        "Public fast charger DC": "50 min"
+    "",
+    ""
+        "Model": "Peugeot E-2008",
+        "Autonomie WLTP": "jusqu'à 406 km",
+        "Easy WB with installation": "11 h",
+        "ePro WB with installation": "7 h",
+        "Public fast charger DC": "50 min"
+    "",
+    ""
+        "Model": "Peugeot E-308",
+        "Autonomie WLTP": "jusqu'à 416 km",
+        "Easy WB with installation": "11 h",
+        "ePro WB with installation": "7 h",
+        "Public fast charger DC": "50 min"
+    "",
+    ""
+        "Model": "Peugeot E-308 SW",
+        "Autonomie WLTP": "jusqu'à 410 km",
+        "Easy WB with installation": "",
+        "ePro WB with installation": "",
+        "Public fast charger DC": ""
+    "",
+    ""
+        "Model": "Peugeot E-3008",
+        "Autonomie WLTP": "jusqu'à 700 km",
+        "Easy WB with installation": "16 h",
+        "ePro WB with installation": "11 h",
+        "Public fast charger DC": "50 min"
+    "",
+    ""
+        "Model": "Peugeot E-408",
+        "Autonomie WLTP": "jusqu'à 453 km",
+        "Easy WB with installation": "",
+        "ePro WB with installation": "",
+        "Public fast charger DC": ""
+    "",
+    ""
+        "Model": "Peugeot E-5008",
+        "Autonomie WLTP": "jusqu'à 668 km",
+        "Easy WB with installation": "",
+        "ePro WB with installation": "",
+        "Public fast charger DC": ""
+    "",
+    ""
+        "Model": "Peugeot E-Rifter",
+        "Autonomie WLTP": "jusqu'à 343 km",
+        "Easy WB with installation": "",
+        "ePro WB with installation": "",
+        "Public fast charger DC": ""
+    "",
+    ""
+        "Model": "Peugeot E-Traveller",
+        "Autonomie WLTP": "jusqu'à 348 km",
+        "Easy WB with installation": "",
+        "ePro WB with installation": "",
+        "Public fast charger DC": ""
+    "",
+    ""
+        "Model": "Peugeot E-Expert",
+        "Autonomie WLTP": "jusqu'à 350 km",
+        "Easy WB with installation": "15 h",
+        "ePro WB with installation": "10 h",
+        "Public fast charger DC": "50 min"
+    "",
+    ""
+        "Model": "Peugeot E-Boxer",
+        "Autonomie WLTP": "jusqu'à 420 km",
+        "Easy WB with installation": "",
+        "ePro WB with installation": "",
+        "Public fast charger DC": ""
+    "",
+    ""
+        "Model": "Peugeot E-Partner",
+        "Autonomie WLTP": "jusqu'à 346 km",
+        "Easy WB with installation": "10 h",
+        "ePro WB with installation": "7 h",
+        "Public fast charger DC": "50 min"
+    ""
+]
+
 ** Les SHOWROOM URL présentent les modèles Peugeot, tandis que les CONFIGURE URL permettent de les personnaliser en ligne. **
 
 
@@ -161,9 +137,30 @@ les demandes d'offres sont des pages qui permettent aux clients d’obtenir des 
   "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouveau-e-partner.html",
   "demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_nouveau_partner.html",
   
+  "model": "408",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouvelle-408.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/nouvelle-408-berline"
+   "demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_Nouvelle_408.html"
+  ,
+  "model": "5008",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouveau-peugeot-5008/electrique.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/nouveau-5008-suv"
+   "demanes_d'offres":"	https://www.peugeot.fr/tools/lp/forms_demande_offre_nouveau_5008.html"
+  ,
+  "model": "Rifter",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouveau-e-rifter.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/nouveau-rifter-taille-m"
+   "demanes_d'offres":"	https://www.peugeot.fr/tools/lp/forms_demande_offre_nouveau_rifter.html"
+  ,
+  "model": "Traveller",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouveau-e-traveller.html",
+  "configure_url": "https://store.peugeot.fr/trim/configurable/nouveau-traveller-m"
+   "demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_208.html"
+  ,
+  "model": "Boxer",
+  "showroom_url": "https://www.peugeot.fr/nos-vehicules/nouveau-e-boxer.html",
+   "demanes_d'offres":"https://www.peugeot.fr/tools/lp/forms_demande_offre_nouveau_boxer.html
 
-
-  
 
 ***Argumentaires à mettre en avant sur les AVANTAGES DE L’ELECTRIQUE,AUTONOMIE,RECHARGE,COUT & ECONOMIE,GARANTIE et IMPACT ENVIRONMENTAL***
 
